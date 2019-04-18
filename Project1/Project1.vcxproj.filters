@@ -53,5 +53,11 @@
     <ClInclude Include="SortedList.h">
       <Filter>헤더 파일\Structure</Filter>
     </ClInclude>
+    <ClInclude Include="Frequent.h">
+      <Filter>헤더 파일\File</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
   </ItemGroup>
 </Project>

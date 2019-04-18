@@ -1,4 +1,4 @@
-#include "FileType.h"
+﻿#include "FileType.h"
 #include "SortedList.h"
 
 using namespace std;
@@ -83,30 +83,6 @@ void FileType::SetPropertyFromKB() {
 	SetNameFromKB();
 	SetExtensionFromKB();
 	SetLocationFromKB();
-}
-
-// Read data from file
-int FileType::ReadDataFromFile(ifstream & fin) {
-	fin >> m_Name;
-	fin >> m_Extension;
-	fin >> m_Location;
-	fin >> m_CreateDate;
-	fin >> m_ModifyDate;
-	fin >> m_AccessDate;
-
-	return 1;
-}
-
-// Write data to file
-int FileType::WriteDataToFile(ofstream & fout) {
-	fout << m_Name << " ";
-	fout << m_Extension << " ";
-	fout << m_Location << " ";
-	fout << m_CreateDate << " ";
-	fout << m_ModifyDate << " ";
-	fout << m_AccessDate << " ";
-
-	return 1;
 }
 
 // Convert time_t to string format.

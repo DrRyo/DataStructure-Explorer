@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _SORTEDLIST_H
 #define _SORTEDLIST_H
@@ -209,10 +209,10 @@ int SortedList<T>::Add(T inData) {
 	m_Array = temp;
 
 	for (int i = 0; i <= m_Length; i++) {
-		if (m_Array[i] > inData || i == m_Length) {	//만약 m_Array[i] > inData일 경우 혹은 배열의 마지막이라서 비교 대상이 없는 경우
-			for (int j = m_Length; j > i; j--)		//맨 뒤에서 부터 하나씩 당긴다.
-				m_Array[j] = m_Array[j - 1];		//배열 밀기
-			m_Array[i] = inData;					//배열을 밀은 후 현재 포인터에 아이템 넣는다.
+		if (m_Array[i] > inData || i == m_Length) {	// 만약 m_Array[i] > inData일 경우 혹은 배열의 마지막이라서 비교 대상이 없는 경우
+			for (int j = m_Length; j > i; j--)		// 맨 뒤에서 부터 하나씩 당긴다.
+				m_Array[j] = m_Array[j - 1];		// 배열 밀기
+			m_Array[i] = inData;					// 배열을 밀은 후 현재 포인터에 아이템 넣는다.
 			m_Length++;
 			return 1;
 		}
@@ -243,22 +243,22 @@ int SortedList<T>::Get(T& data) {
 // Return position of array if matched data found
 template <class T>
 int SortedList<T>::GetBinary(T& data) {
-	if (m_Length == 0)				//만약 배열이 비었다면
-		return -1;					//실패(0)을 리턴
+	if (m_Length == 0)				// 만약 배열이 비었다면
+		return -1;					// 실패(0)을 리턴
 
-	int currentPos = m_Length / 2;	//배열의 중간부터 시작
+	int currentPos = m_Length / 2;	// 배열의 중간부터 시작
 	while (1) {
-		if (m_Array[currentPos] == data) {				//현재 아이템과 입력 아이템의 id가 일치한다면
-			data = m_Array[currentPos];					//data에 발견한 값을 리턴
-			return currentPos;							//성공(1)을 리턴
-		} else if (m_Array[currentPos] > data) {		//현재 아이템의 id가 입력 아이템의 id보다 크다면
-			if (currentPos == 0)						//처음 배열의 값보다 작은경우
-				return -1;								//실패(0)을 리턴
-			currentPos /= 2;							//더 작은쪽 인덱스의 절반로 이동
-		} else {										//현재 아이템의 id가 입력 아이템의 id보다 작다면
-			if (currentPos == m_Length - 1)				//마지막 배열의 값보다 큰경우
-				return -1;								//실패(0)을 리턴
-			currentPos = (currentPos + m_Length) / 2;	//더 큰쪽 인덱스의 절반으로 이동
+		if (m_Array[currentPos] == data) {				// 현재 아이템과 입력 아이템의 id가 일치한다면
+			data = m_Array[currentPos];					// data에 발견한 값을 리턴
+			return currentPos;							// 성공(1)을 리턴
+		} else if (m_Array[currentPos] > data) {		// 현재 아이템의 id가 입력 아이템의 id보다 크다면
+			if (currentPos == 0)						// 처음 배열의 값보다 작은경우
+				return -1;								// 실패(0)을 리턴
+			currentPos /= 2;							// 더 작은쪽 인덱스의 절반로 이동
+		} else {										// 현재 아이템의 id가 입력 아이템의 id보다 작다면
+			if (currentPos == m_Length - 1)				// 마지막 배열의 값보다 큰경우
+				return -1;								// 실패(0)을 리턴
+			currentPos = (currentPos + m_Length) / 2;	// 더 큰 쪽 인덱스의 절반으로 이동
 		}
 	}
 	return -1;
@@ -269,11 +269,11 @@ template <class T>
 int SortedList<T>::Delete(T data) {
 	int pos = GetBinary(data);
 
-	if (pos != -1) {							//id가 일치하는 item을 발견한다면(1)
-		for (int i = pos; i < m_Length - 1; i++)//현재 포인터부터 입력된 배열 끝까지 반복
-			m_Array[i] = m_Array[i + 1];		//배열 뒤에걸 앞으로 하나씩 땡김
-		m_Length--;								//아이템 개수를 하나 줄임
-		return 1;								//성공(1)을 리턴
+	if (pos != -1) {							// id가 일치하는 item을 발견한다면(1)
+		for (int i = pos; i < m_Length - 1; i++)// 현재 포인터부터 입력된 배열 끝까지 반복
+			m_Array[i] = m_Array[i + 1];		// 배열 뒤의 원소를 앞으로 하나씩 땡김
+		m_Length--;								// 아이템 개수를 하나 줄임
+		return 1;								// 성공(1)을 리턴
 	}
 
 	return 0;	//id가 일치하는 item을 찾지 못한다면 실패(0)을 리턴
@@ -284,12 +284,12 @@ template <class T>
 int SortedList<T>::Replace(T data) {
 	int pos = GetBinary(data);
 
-	if (pos != -1) {			//일치하는 아이템을 찾은 경우
-		m_Array[pos] = data;	//배열에서 현재포인터가 가르키는 것을 백업했던 아이템으로 교체시킴
-		return 1;				//성공(1)을 리턴
+	if (pos != -1) {			// 일치하는 아이템을 찾은 경우
+		m_Array[pos] = data;	// 배열에서 현재포인터가 가르키는 것을 백업했던 아이템으로 교체시킴
+		return 1;				// 성공(1)을 리턴
 	}
 
-	return 0;				//id 일치하는 item을 찾지 못한다면 실패(0)을 리턴
+	return 0;					// id 일치하는 item을 찾지 못한다면 실패(0)을 리턴
 }
 
 // Read array from file

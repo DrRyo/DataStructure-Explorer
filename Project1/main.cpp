@@ -1,4 +1,4 @@
-/**
+﻿/**
 *	@mainpage	Folder Explorer
 *				This is a simple example of Lab03 on data structures course.<br>
 *

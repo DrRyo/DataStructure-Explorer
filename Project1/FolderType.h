@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _FOLDERTYPE_H
 #define _FOLDERTYPE_H
@@ -19,6 +19,7 @@ using namespace std;
 *	Folder information class.
 */
 class FolderType {
+private:
 	string m_Name;
 	string m_Location;
 	string m_CreateDate;
@@ -30,7 +31,6 @@ class FolderType {
 	SortedList<FolderType> * m_folderList;
 	SortedList<FileType> * m_fileList;
 
-public:
 public:
 	/**
 	*	default constructor.
@@ -129,17 +129,6 @@ public:
 		cout << "\tAccess Date: \t" << data.GetAccessDate() << endl;
 
 		return out;
-	}
-
-	/**
-	*	@brief	Input stream에서 FolderType를 적절하게 입력한다.
-	*	@pre	Input이 적절하게 있어야 함.
-	*	@post	FolderType가 입력됨.
-	*	@param	in:		입력할 스트림
-	*	@param	data:	입력할 FolderType
-	*/
-	friend std::istream& operator>> (std::istream &in, const FolderType &data) {
-		return in;
 	}
 
 	/**
@@ -440,22 +429,6 @@ public:
 	*	@return	none.
 	*/
 	void SetPropertyFromKB();
-
-	/**
-	*	@brief	파일로부터 데이터를 입력받는 함수
-	*	@pre	none.
-	*	@post	파일로 데이터를 입력받음.
-	*	@return	성공하면 1을 리턴
-	*/
-	int ReadDataFromFile(ifstream& fin);
-
-	/**
-	*	@brief	파일로 데이터를 출력하는 함수
-	*	@pre	none.
-	*	@post	파일로 데이터를 출력함.
-	*	@return	성공하면 1을 리턴
-	*/
-	int WriteDataToFile(ofstream& fout);
 };
 
 #endif //_FOLDERTYPE_H

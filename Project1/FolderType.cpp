@@ -1,4 +1,4 @@
-#include "FolderType.h"
+﻿#include "FolderType.h"
 #include "SortedList.h"
 
 using namespace std;
@@ -9,6 +9,8 @@ FolderType & FolderType::operator=(const FolderType & data) {
 		SetName(data.GetName());
 		SetLocation(data.GetLocation());
 		SetCreateDate(data.GetCreateDate());
+		SetModifyDate(data.GetModifyDate());
+		SetAccessDate(data.GetAccessDate());
 		SetFolderNumber(data.GetFolderNumber());
 		SetFileNumber(data.GetFileNumber());
 		SetSubFolderList(data.GetSubFolderList());
@@ -97,32 +99,6 @@ void FolderType::SetPropertyFromKB(string location) {
 void FolderType::SetPropertyFromKB() {
 	SetNameFromKB();
 	SetLocationFromKB();
-}
-
-// Read data from file
-int FolderType::ReadDataFromFile(ifstream & fin) {
-	fin >> m_Name;
-	fin >> m_Location;
-	fin >> m_CreateDate;
-	fin >> m_folderNumber;
-	fin >> m_fileNumber;
-	m_folderList->ReadDataFromFile(fin, m_folderNumber);
-	m_fileList->ReadDataFromFile(fin, m_fileNumber);
-
-	return 1;
-}
-
-// Write data to file
-int FolderType::WriteDataToFile(ofstream & fout) {
-	fout << m_Name << " ";
-	fout << m_Location << " ";
-	fout << m_CreateDate << " ";
-	fout << m_folderNumber << " ";
-	fout << m_fileNumber << endl;
-	m_folderList->WriteDataToFile(fout);
-	m_fileList->WriteDataToFile(fout);
-
-	return 1;
 }
 
 // Convert time_t to string format.

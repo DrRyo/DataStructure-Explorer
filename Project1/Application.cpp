@@ -1,85 +1,202 @@
-#include "Application.h"
+﻿#include "Application.h"
 
 // 프로그램 실행
-// TODO: Copy folder
-// TODO: Cut folder
-// TODO: Paste folder
-// TODO: Copy file
-// TODO: Cut file
-// TODO: Paste file
 void Application::Run()
 {
-	while (1)
-	{
+	m_Command = -1;
+	bool cFlag = false;
+
+	while (1) {
+		system("cls");
 		DisplayProperty();
-		m_Command = GetCommand();
-		switch (m_Command) {
-		case 1:	// 새 폴더 생성
-			NewFolder();
-			break;
-		case 2: // 서브 폴더 삭제
-			DeleteFolder();
-			break;
-		case 3:	// 서브 폴더 열기
-			OpenFolder();
-			break;
-		case 4: // 현재 폴더 속성
-			DisplayProperty();
-			break;
-		case 5: // 상위 폴더로 이동
-			MoveToParentFolder();
-			break;
-		case 6:	// read data from a file
-			ReadDataFromFile();
-			break;
-		case 7:	// save list data into a file.
-			WriteDataToFile();
-			break;
-		case 8: // 파일 생성하기 (txt)
-			NewFile();
-			break;
-		case 9: // 파일 삭제하기 (이름)
-			DeleteFile();
-			break;
-		case 10: // 파일 수정하기 (이름)
-			RenameFile();
-			break;
-		case 11: // 파일 열기
-			OpenFile();
-			break;
-		case 12: // 폴더 및 파일 전체 검색
-			Search();
-			break;
-		case 13: // 최근 열어본 폴더 및 파일
-			Recent();
-			break;
-		case 0:
-			return;
-		default:
-			cout << "\tIllegal selection...\n";
-			break;
+
+		if (m_Command == -1) {
+			m_Command = GetFolderCommand();
+		} else if (!cFlag) {
+			switch (m_Command) {
+			case 1:		// 폴더 및 파일 전체 검색
+				Search();
+				break;
+			case 2:		// 최근 열어본 폴더 및 파일 출력
+				DisplayRecent();
+				break;
+			case 3:		// 좋아하는 폴더 및 파일 출력
+				DisplayFavorite();
+				break;
+			case 4:		// 자주 사용한 폴더 및 파일 출력
+				DisplayFrequent();
+				break;
+			case -1:	// 다음 명령어
+				break;
+			case 0:		// 탐색기 종료
+				return;
+			default:
+				cout << "\tIllegal selection...\n";
+				break;
+			}
+
+			// Execute command successfully.
+			m_Command = -999;
+			cFlag = true;
 		}
+
+		system("cls");
+		DisplayProperty();
+		if (m_Command == -1) {
+			m_Command = GetFileCommand();
+		} else if (!cFlag) {
+			// if m_Command is not next command, execute folder command
+			switch (m_Command) {
+			case 1:		// 새 폴더 생성
+				NewFolder();
+				break;
+			case 2:		// 서브 폴더 삭제
+				DeleteFolder();
+				break;
+			case 3:		// 서브 폴더명 변경
+				RenameFolder();
+				break;
+			case 4:		// 서브 폴더 열기
+				OpenFolder();
+				break;
+			case 5:		// 자주가는 폴더 등록
+				SetAsFavoriteFolder();
+				break;
+			case 6:		// 현재 폴더 속성
+				DisplayProperty();
+				break;
+			case 7:		// 상위 폴더로 이동
+				MoveToParentFolder();
+				break;
+			case 8:		// 현재 폴더 복사
+				CopyFolder();
+				break;
+			case 9:		// 현재 폴더 잘라내기
+				CutFolder();
+				break;
+			case 10:	// 현재 폴더 붙여넣기
+				PasteFolder();
+				break;
+			case -1:	// 다음 명령어
+				break;
+			case 0:		// 탐색기 종료
+				return;
+			default:
+				cout << "\tIllegal selection...\n";
+				break;
+			}
+
+			// Execute command successfully.
+			m_Command = -999;
+			cFlag = true;
+		}
+
+		system("cls");
+		DisplayProperty();
+		if (m_Command == -1){
+			m_Command = GetExplorerCommand();
+		} else if (!cFlag) {
+			switch (m_Command) {
+			case 1:		// 파일 생성하기 (텍스트)
+				NewFile();
+				break;
+			case 2:		// 파일 삭제하기 (이름)
+				DeleteFile();
+				break;
+			case 3:		// 파일 수정하기 (이름)
+				RenameFile();
+				break;
+			case 4:		// 파일 열기
+				OpenFile();
+				break;
+			case 5:		// 자주가는 폴더 등록
+				SetAsFavoriteFolder();
+				break;
+			case 6:		// 현재 폴더 복사
+				CopyFolder();
+				break;
+			case 7:		// 현재 폴더 잘라내기
+				CutFolder();
+				break;
+			case 8:		// 현재 폴더 붙여넣기
+				PasteFolder();
+				break;
+			case -1:	// 다음 명령어
+				break;
+			case 0:		// 탐색기 종료
+				return;
+			default:
+				cout << "\tIllegal selection...\n";
+				break;
+			}
+
+			// Execute command successfully.
+			m_Command = -999;
+			cFlag = true;
+		}
+
+		m_Command = -1, cFlag = false;
 	}
 }
 
 // 화면에 명령어를 보여주고 키보드 입력을 받음.
-int Application::GetCommand() {
+int Application::GetFolderCommand() {
 	int command;
 	cout << endl << endl;
-	cout << "\t---ID -- Command ----- " << endl;
-	cout << "\t   1  : Create Folder" << endl;
-	cout << "\t   2  : Delete sub folder" << endl;
-	cout << "\t   3  : Open sub folder" << endl;
-	cout << "\t   4  : Print property of folder" << endl;
-	cout << "\t   5  : Move to parent folder" << endl;
-	cout << "\t   6  : Get from file" << endl;
-	cout << "\t   7  : Put to file" << endl;
-	cout << "\t   8  : Create new file" << endl;
-	cout << "\t   9  : Delete file" << endl;
-	cout << "\t   10 : Rename file" << endl;
-	cout << "\t   11 : Open file" << endl;
-	cout << "\t   12 : Search" << endl;
-	cout << "\t   13 : Recent" << endl;
+	cout << "\t-- ID -- Command ----- " << endl;
+	cout << "\t   1  : Create folder" << endl;
+	cout << "\t   2  : Delete folder" << endl;
+	cout << "\t   3  : Rename folder" << endl;
+	cout << "\t   4  : Open folder" << endl;
+	cout << "\t   5  : Set as favorite" << endl;
+	cout << "\t   6  : Property of folder" << endl;
+	cout << "\t   7  : Move to parent folder" << endl;
+	cout << "\t   8  : Copy this folder" << endl;
+	cout << "\t   9  : Cut this folder" << endl;
+	cout << "\t  10  : Paste this folder" << endl;
+	cout << "\t  -1  : Next commands" << endl;
+	cout << "\t   0  : Quit" << endl;
+
+	cout << endl << "\t Choose a Command--> ";
+	cin >> command;
+	cout << endl;
+
+	return command;
+}
+
+// 화면에 명령어를 보여주고 키보드 입력을 받음.
+int Application::GetFileCommand() {
+	int command;
+	cout << endl << endl;
+	cout << "\t-- ID -- Command ----- " << endl;
+	cout << "\t   1  : Create new file" << endl;
+	cout << "\t   2  : Delete file" << endl;
+	cout << "\t   3  : Rename file" << endl;
+	cout << "\t   4  : Open file" << endl;
+	cout << "\t   5  : Set as favorite" << endl;
+	cout << "\t   6  : Copy file" << endl;
+	cout << "\t   7  : Cut file" << endl;
+	cout << "\t   8  : Paste file" << endl;
+	cout << "\t  -1  : Next commands" << endl;
+	cout << "\t   0  : Quit" << endl;
+
+	cout << endl << "\t Choose a Command--> ";
+	cin >> command;
+	cout << endl;
+
+	return command;
+}
+
+// 화면에 명령어를 보여주고 키보드 입력을 받음.
+int Application::GetExplorerCommand() {
+	int command;
+	cout << endl << endl;
+	cout << "\t-- ID -- Command ----- " << endl;
+	cout << "\t   1  : Search" << endl;
+	cout << "\t   2  : Recent" << endl;
+	cout << "\t   3  : Favorite" << endl;
+	cout << "\t   4  : Frequent" << endl;
+	cout << "\t  -1  : Next commands" << endl;
 	cout << "\t   0  : Quit" << endl;
 
 	cout << endl << "\t Choose a Command--> ";
@@ -92,30 +209,14 @@ int Application::GetCommand() {
 // 새로운 폴더를 생성함.
 void Application::NewFolder() {
 	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
-	FolderType temp("temp", location, m_curFolder);
+	FolderType temp;
 	temp.SetPropertyFromKB(location);
-	temp.SetSubFolderList(new SortedList<FolderType>);
+	temp.SetParent(m_curFolder);
 
 	if (m_curFolder->GetSubFolderList()->Add(temp)) {
 		m_curFolder->SetModifyDateToNow();
 		m_curFolder->SetFolderNumber(m_curFolder->GetFolderNumber() + 1);
 	}
-}
-
-// 단어를 포함하는 폴더를 검색함
-void Application::RetrieveFolderByName() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
-	FolderType temp;
-	temp.SetPropertyFromKB(location);
-
-	m_curFolder->GetSubFolderList()->Get(temp);
-}
-
-// 최근 열어본 폴더 출력
-void Application::RecentFolder(){
-	cout << "\t===============" << endl;
-	cout << "\t[Recent Folder]" << endl;
-	cout << m_RecentFolder << endl;
 }
 
 // 폴더 삭제
@@ -128,6 +229,11 @@ void Application::DeleteFolder() {
 		m_curFolder->SetModifyDateToNow();
 		m_curFolder->SetFolderNumber(m_curFolder->GetFolderNumber() - 1);
 	}
+}
+
+// TODO: Rename folder
+void Application::RenameFolder() {
+
 }
 
 // 서브 폴더 열기
@@ -148,6 +254,32 @@ void Application::OpenFolder() {
 	m_RecentFolder.EnQueue(result);
 	m_curFolder = &result;
 	m_curFolder->SetAccessDateToNow();
+}
+
+// TODO: Set as favorite folder
+void Application::SetAsFavoriteFolder() {
+	m_FavoriteFolder.EnQueue(*m_curFolder);
+}
+
+// 최근 열어본 폴더 출력
+void Application::DisplayRecentFolder() {
+	cout << "\t=================" << endl;
+	cout << "\t[Recent Folder]" << endl;
+	cout << m_RecentFolder << endl;
+}
+
+// 좋아하는 폴더 출력
+void Application::DisplayFavoriteFolder() {
+	cout << "\t=================" << endl;
+	cout << "\t[Favorite Folder]" << endl;
+	cout << m_FavoriteFolder << endl;
+}
+
+// 자주 사용하는 폴더 출력
+void Application::DisplayFrequentFolder() {
+	cout << "\t=================" << endl;
+	cout << "\t[Frequent Folder]" << endl;
+	cout << m_FrequentFolder << endl;
 }
 
 // 폴더 정보 출력
@@ -182,24 +314,19 @@ void Application::MoveToParentFolder() {
 	}
 }
 
-// Open a file by file descriptor as an input file. 
-int Application::OpenInFile(char *fileName)
-{
-	m_InFile.open(fileName);	// file open for reading.
+// TODO: 폴더 복사
+void Application::CopyFolder() {
 
-	// 파일 오픈에 성공하면 1, 그렇지 않다면 0을 리턴.
-	if (!m_InFile)	return 0;
-	else	return 1;
 }
 
-// Open a file by file descriptor as an output file.
-int Application::OpenOutFile(char *fileName)
-{
-	m_OutFile.open(fileName);	// file open for writing.
+// TODO: 폴더 자르기
+void Application::CutFolder() {
 
-	// 파일 오픈에 성공하면 1, 그렇지 않다면 0을 리턴.
-	if (!m_OutFile)	return 0;
-	else	return 1;
+}
+
+// TODO: 폴더 붙여넣기
+void Application::PasteFolder() {
+
 }
 
 // Add new file
@@ -229,12 +356,12 @@ void Application::DeleteFile() {
 // Rename file
 void Application::RenameFile() {
 	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
-	cout << "바꾸고 싶은 파일 이름을 입력해주세요." << endl;
+	cout << "\t바꾸고 싶은 파일 이름을 입력해주세요." << endl;
 	FileType* temp = new FileType();
 	temp->SetPropertyFromKB(location);
 
-	if (m_curFolder->GetFileList()->GetBinary(*temp)) {
-		cout << "무슨 이름으로 바꾸시겠습니까?" << endl;
+	if (m_curFolder->GetFileList()->GetBinary(*temp) != -1) {
+		cout << "\t무슨 이름으로 바꾸시겠습니까?" << endl;
 		FileType renew;
 		renew.SetPropertyFromKB(location);
 
@@ -242,7 +369,7 @@ void Application::RenameFile() {
 			temp->SetAccessDateToNow();
 			temp->SetName(renew.GetName());
 		} else {
-			cout << "파일명 중복입니다." << endl;
+			cout << "\t파일명 중복입니다." << endl;
 		}
 	}
 }
@@ -285,6 +412,19 @@ void Application::OpenFile() {
 	return;
 }
 
+// TODO: Set as favorite file
+void Application::SetAsFavoriteFile() {
+	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	FileType* temp = new FileType();
+	temp->SetPropertyFromKB(location);
+
+	if (m_curFolder->GetFileList()->GetBinary(*temp) != -1) {
+		m_FavoriteFile.EnQueue(*temp);
+	} else {
+		cout << "There is no such file." << endl;
+	}
+}
+
 // Search folder or file in whole system
 void Application::Search() {
 	string word;
@@ -314,54 +454,44 @@ void Application::RecursiveSearch(FolderType* f, string w) {
 }
 
 // 최근 열어본 파일 출력
-void Application::RecentFile() {
+void Application::DisplayRecentFile() {
 	cout << "\t=============" << endl;
 	cout << "\t[Recent File]" << endl;
 	cout << m_RecentFile << endl;
 }
 
-// Show recent folder or file
-void Application::Recent() {
-	RecentFolder();
-	RecentFile();
+// 좋아하는 파일 출력
+void Application::DisplayFavoriteFile() {
+	cout << "\t=============" << endl;
+	cout << "\t[Favorite File]" << endl;
+	cout << m_FavoriteFile << endl;
 }
 
-// TODO: 파일로부터 구조 읽어들이기
-void Application::ReadDataFromFile() {
-	int index = 0;
-	FolderType data;	// 읽기용 임시 변수
-
-	char filename[FILENAMESIZE];
-	cout << "\n\tEnter Input file Name : ";
-	cin >> filename;
-
-	// file open, open error가 발생하면 0을 리턴
-	if (!OpenInFile(filename))
-		return;
-
-	m_curFolder->ReadDataFromFile(m_InFile);
-	m_InFile.close();	// file close
-
-	// 현재 list 출력
-	DisplayProperty();
-
-	return;
+// 자주 사용하는 파일 출력
+void Application::DisplayFrequentFile() {
+	cout << "\t=============" << endl;
+	cout << "\t[Frequent File]" << endl;
+	cout << m_FrequentFile << endl;
 }
 
-// TODO: 파일로부터 구조 쓰기
-void Application::WriteDataToFile() {
-	FolderType data;	// 쓰기용 임시 변수
+// Display recent folder or file
+void Application::DisplayRecent() {
+	DisplayRecentFolder();
+	DisplayRecentFile();
+}
 
-	char filename[FILENAMESIZE];
-	cout << "\n\tEnter Output file Name : ";
-	cin >> filename;
+// Display favorite folder or file
+void Application::DisplayFavorite() {
+	DisplayFavoriteFolder();
+	DisplayFavoriteFile();
+}
 
-	// file open, open error가 발생하면 0을 리턴
-	if (!OpenOutFile(filename))
-		return;
+// Display Frequent folder or file
+void Application::DisplayFrequent() {
+	DisplayFrequentFolder();
+	DisplayFrequentFile();
+}
 
-	m_curFolder->WriteDataToFile(m_OutFile);
-	m_OutFile.close();	// file close
-
-	return;
+// TODO: 파일시스템으로부터 구조 읽어들이기
+void Application::ReadDataFromSystem() {
 }
