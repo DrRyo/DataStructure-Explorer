@@ -55,14 +55,36 @@ void FileType::SetAccessDateToNow() {
 
 // Set file name from keyboard.
 void FileType::SetNameFromKB() {
-	cout << "\tFile Name: ";
-	cin >> m_Name;
+	string temp;
+
+	while (true) {
+		cout << "\tFile Name: ";
+		cin >> temp;
+
+		if (Windows::IsValidName(temp)) {
+			m_Name = temp;
+			break;
+		} else {
+			cout << endl << "\tNot allowed character included." << endl;
+		}
+	}
 }
 
 // Set file extension from keyboard.
 void FileType::SetExtensionFromKB() {
-	cout << "\tFile Extension: ";
-	cin >> m_Extension;
+	string temp;
+
+	while (true) {
+		cout << "\tFile Extension: ";
+		cin >> temp;
+
+		if (Windows::IsValidName(temp)) {
+			m_Extension = temp;
+			break;
+		} else {
+			cout << endl << "\tNot allowed character included." << endl;
+		}
+	}
 }
 
 // Set file location from keyboard.

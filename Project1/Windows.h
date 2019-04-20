@@ -7,11 +7,21 @@
 #include <fstream>
 #include <filesystem>
 
-#include "FolderType.h"
+// 순환 참조를 해결하기 위함
+class FolderType;
 
 using namespace std;
 
 namespace Windows {
+	/**
+	*	@brief	Validate if there is no special characters.
+	*	@pre	문자열이 주어진다.
+	*	@post	특수 문자가 있는지 확인한다.
+	*	@param	name:	검사할 문자열
+	*	@return	유효한 문자열일 때 true, 아닐 때 false 반환
+	*/
+	bool IsValidName(const string& name);
+
 	/**
 	*	@brief	Create directory in specific location
 	*	@pre	특정 위치의 폴더 문자열이 주어진다.
@@ -87,7 +97,7 @@ namespace Windows {
 	*	@pre	root 폴더가 존재해야한다.
 	*	@post	폴더 구조를 읽어 메모리에 할당한다.
 	*/
-	int ReadStructureFromSystem(FolderType& root);
+	bool ReadStructureFromSystem(FolderType& root);
 }
 
 #endif //_WINDOWS_H

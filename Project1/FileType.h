@@ -10,6 +10,7 @@
 #include <iomanip>
 
 #include "SortedList.h"
+#include "Windows.h"
 // 순환 참조를 해결하기 위함
 class FolderType;
 

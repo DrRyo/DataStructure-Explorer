@@ -11,6 +11,7 @@
 
 #include "SortedList.h"
 #include "FileType.h"
+#include "Windows.h"
 
 using namespace std;
 

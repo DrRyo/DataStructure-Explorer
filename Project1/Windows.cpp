@@ -3,27 +3,20 @@
 namespace fs = std::filesystem;
 
 namespace Windows {
-	// Convert string to PCWSTR (Pointer to Constant unicode Wide_STRing)
-	//PCWSTR StringToPCWSTR(const string& str) {
-	//	int slength = (int)str.length() + 1;
-	//	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, 0, 0);
-
-	//	wchar_t* buf = new wchar_t[len];
-	//	MultiByteToWideChar(CP_ACP, 0, str.c_str(), slength, buf, len);
-
-	//	wstring* result = new wstring(buf);
-	//	delete[] buf;
-
-	//	PCWSTR pResult = result->c_str();
-	//	return pResult;
-	//}
-
+	// Validate if there is no special characters
+	bool IsValidName(const string& name) {
+		if (name.find_first_of("\\/:*?\"<>|,.") == string::npos) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	// Create directory in specific location
 	bool CreateDirectoryWithPath(string folderWithPath) {
 		try {
 			return fs::create_directories(folderWithPath);
 		} catch (...) {
-			return 0;
+			return false;
 		}
 	}
 
@@ -39,7 +32,7 @@ namespace Windows {
 		try {
 			return fs::remove_all(location + name);
 		} catch (...) {
-			return 0;
+			return false;
 		}
 	}
 
@@ -50,10 +43,10 @@ namespace Windows {
 
 		if (out.fail()) {
 			out.close();
-			return 0;
+			return false;
 		} else {
 			out.close();
-			return 1;
+			return true;
 		}
 	}
 
@@ -69,7 +62,7 @@ namespace Windows {
 		try {
 			return fs::remove(location + name + "." + extension);
 		} catch (...) {
-			return 0;
+			return false;
 		}
 	}
 
@@ -78,14 +71,14 @@ namespace Windows {
 		string file = location + name + "." + extension;
 		try {
 			system(file.c_str());
-			return 1;
+			return true;
 		} catch (...) {
-			return 0;
+			return false;
 		}
 	}
 
 	// TODO: Read Structure From Windows
-	int ReadStructureFromSystem(FolderType& root) {
-		return 0;
+	bool ReadStructureFromSystem(FolderType& root) {
+		return false;
 	}
 }

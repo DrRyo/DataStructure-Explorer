@@ -79,8 +79,19 @@ void FolderType::SetFileList(SortedList<FileType> * fType) {
 
 // Set folder name from keyboard.
 void FolderType::SetNameFromKB() {
-	cout << "\tFolder Name: ";
-	cin >> m_Name;
+	string temp;
+
+	while (true) {
+		cout << "\tFolder Name: ";
+		cin >> temp;
+
+		if (Windows::IsValidName(temp)) {
+			m_Name = temp;
+			break;
+		} else {
+			cout << endl << "\tNot allowed character included." << endl;
+		}
+	}
 }
 
 // Set folder location from keyboard.
