@@ -4,7 +4,6 @@
 #define _APPLICATION_H
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <cstdlib>
 using namespace std;
@@ -15,28 +14,32 @@ using namespace std;
 #include "FolderType.h"
 #include "Frequent.h"
 
+#include "Windows.h"
+
 /**
 *	application class for folder management simply.
 */
 class Application {
 private:
-	ifstream m_InFile;
-	ofstream m_OutFile;
 	FolderType m_RootFolder;
-	FolderType * m_curFolder;
+	FolderType *m_CurFolder;
+	SortedList<FolderType> *m_CopyFolder = new SortedList<FolderType>();
+	SortedList<FolderType> *m_CutFolder = new SortedList<FolderType>();
+	SortedList<FileType> *m_CopyFile = new SortedList<FileType>();
+	SortedList<FileType> *m_CutFile = new SortedList<FileType>();
 	Queue<FolderType> m_RecentFolder;
 	Queue<FileType> m_RecentFile;
 	Queue<FolderType> m_FavoriteFolder;
 	Queue<FileType> m_FavoriteFile;
-	Queue<Frequent<FolderType>> m_FrequentFolder;
-	Queue<Frequent<FileType>> m_FrequentFile;
+	Frequent<FolderType> m_FrequentFolder;
+	Frequent<FileType> m_FrequentFile;
 	int m_Command;
 	
 public:
 	/**
 	*	default constructor with folder name.
 	*/
-	Application(string folderName = "root", string folderLocation = "/") {
+	Application(string folderName = "root", string folderLocation = ".\\") {
 		m_Command = 0;
 		
 		// main에서 root folder를 application class를 정의하고 제어를 root folder의 Run함수로 넘긴다
@@ -50,8 +53,8 @@ public:
 		m_RootFolder.SetSubFolderList(new SortedList<FolderType>);
 		m_RootFolder.SetFileList(new SortedList<FileType>);
 
-		m_curFolder = &m_RootFolder;
-		m_RecentFolder.EnQueue(*m_curFolder);
+		m_CurFolder = &m_RootFolder;
+		m_RecentFolder.EnQueue(*m_CurFolder);
 	}
 
 	/**
@@ -171,6 +174,20 @@ public:
 	void CutFolder();
 
 	/**
+	*	@brief	복사한 폴더를 붙여넣기함.
+	*	@pre	변수에 폴더 주소값이 지정되어있어야 함.
+	*	@post	현재 폴더 위치에 붙여넣고, 변수를 초기화함.
+	*/
+	void PasteCopyFolder();
+
+	/**
+	*	@brief	잘라내기한 폴더를 붙여넣기함.
+	*	@pre	변수에 폴더 주소값이 지정되어있어야 함.
+	*	@post	현재 폴더 위치에 붙여넣고, 변수를 초기화함.
+	*/
+	void PasteCutFolder();
+
+	/**
 	*	@brief	폴더를 붙여넣기함.
 	*	@pre	변수에 폴더 주소값이 지정되어있어야 함.
 	*	@post	현재 폴더 위치에 붙여넣고, 변수를 초기화함.
@@ -189,7 +206,7 @@ public:
 	*	@pre	파일명이 필요함.
 	*	@post	파일이 삭제됨.
 	*/
-	void DeleteFile();
+	void DeleteFileA();
 
 	/**
 	*	@brief	파일 속성을 변경한다.
@@ -210,6 +227,41 @@ public:
 	*	@post	성공했다면 등록완료 출력.
 	*/
 	void SetAsFavoriteFile();
+
+	/**
+	*	@brief	파일을 복사함.
+	*	@pre	현재 파일을 복사한다.
+	*	@post	변수에 현재 폴더 주소값이 저장됨.
+	*/
+	void CopyFileA();
+
+	/**
+	*	@brief	파일을 자르기함.
+	*	@pre	현재 파일을 자른다.
+	*	@post	변수에 현재 폴더 주소값이 저장됨.
+	*/
+	void CutFile();
+
+	/**
+	*	@brief	복사한 파일을 붙여넣기함.
+	*	@pre	변수에 파일 주소값이 지정되어있어야 함.
+	*	@post	현재 폴더 위치에 붙여넣고, 변수를 초기화함.
+	*/
+	void PasteCopyFile();
+
+	/**
+	*	@brief	잘라내기한 파일을 붙여넣기함.
+	*	@pre	변수에 파일 주소값이 지정되어있어야 함.
+	*	@post	현재 폴더 위치에 붙여넣고, 변수를 초기화함.
+	*/
+	void PasteCutFile();
+
+	/**
+	*	@brief	파일을 붙여넣기함.
+	*	@pre	변수에 파일 주소값이 지정되어있어야 함.
+	*	@post	현재 폴더 위치에 붙여넣고, 변수를 초기화함.
+	*/
+	void PasteFile();
 
 	/**
 	*	@brief	파일 및 폴더를 검색한다.

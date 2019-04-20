@@ -1,5 +1,4 @@
 ﻿#include "FileType.h"
-#include "SortedList.h"
 
 using namespace std;
 
@@ -9,6 +8,7 @@ FileType & FileType::operator=(const FileType & data) {
 		SetName(data.GetName());
 		SetExtension(data.GetExtension());
 		SetLocation(data.GetLocation());
+		SetParent(data.GetParent());
 		SetCreateDate(data.GetCreateDate());
 		SetModifyDate(data.GetModifyDate());
 		SetAccessDate(data.GetAccessDate());

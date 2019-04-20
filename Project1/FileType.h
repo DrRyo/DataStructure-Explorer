@@ -4,11 +4,14 @@
 #define _FILETYPE_H
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <string>
 #include <ctime>
 #include <iomanip>
+
+#include "SortedList.h"
+// 순환 참조를 해결하기 위함
+class FolderType;
 
 using namespace std;
 
@@ -23,6 +26,7 @@ private:
 	string m_CreateDate;
 	string m_ModifyDate;
 	string m_AccessDate;
+	FolderType * m_Parent;
 
 public:
 	/**
@@ -37,10 +41,11 @@ public:
 	/**
 	*	constructor.
 	*/
-	FileType(string name, string extension, string location) {
+	FileType(string name, string extension, string location, FolderType* parent) {
 		m_Name = name;
 		m_Extension = extension;
 		m_Location = location;
+		m_Parent = parent;
 		SetCreateDateToNow();
 		SetModifyDateToNow();
 		SetAccessDateToNow();
@@ -141,6 +146,16 @@ public:
 	}
 
 	/**
+	*	@brief	부모 폴더를 리턴하는 함수
+	*	@pre	none.
+	*	@post	none.
+	*	@return	부모 폴더를 리턴
+	*/
+	FolderType * GetParent() const {
+		return m_Parent;
+	}
+
+	/**
 	*	@brief	파일 생성일을 리턴하는 함수
 	*	@pre	none.
 	*	@post	none.
@@ -201,6 +216,17 @@ public:
 	*/
 	void SetLocation(string location) {
 		m_Location = location;
+	}
+
+	/**
+	*	@brief	부모 폴더 포인터를 설정하는 함수
+	*	@pre	부모 폴더 포인터를 받음
+	*	@post	부모 폴더 포인터를 설정함
+	*	@param	parent:	부모 폴더 포인터
+	*	@return	none.
+	*/
+	void SetParent(FolderType * parent) {
+		m_Parent = parent;
 	}
 
 	/**

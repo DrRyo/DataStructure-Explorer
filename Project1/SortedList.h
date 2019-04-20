@@ -244,23 +244,26 @@ int SortedList<T>::Get(T& data) {
 template <class T>
 int SortedList<T>::GetBinary(T& data) {
 	if (m_Length == 0)				// 만약 배열이 비었다면
-		return -1;					// 실패(0)을 리턴
+		return -1;					// 실패(0)을 리턴한다.
 
-	int currentPos = m_Length / 2;	// 배열의 중간부터 시작
-	while (1) {
-		if (m_Array[currentPos] == data) {				// 현재 아이템과 입력 아이템의 id가 일치한다면
-			data = m_Array[currentPos];					// data에 발견한 값을 리턴
-			return currentPos;							// 성공(1)을 리턴
-		} else if (m_Array[currentPos] > data) {		// 현재 아이템의 id가 입력 아이템의 id보다 크다면
-			if (currentPos == 0)						// 처음 배열의 값보다 작은경우
-				return -1;								// 실패(0)을 리턴
-			currentPos /= 2;							// 더 작은쪽 인덱스의 절반로 이동
-		} else {										// 현재 아이템의 id가 입력 아이템의 id보다 작다면
-			if (currentPos == m_Length - 1)				// 마지막 배열의 값보다 큰경우
-				return -1;								// 실패(0)을 리턴
-			currentPos = (currentPos + m_Length) / 2;	// 더 큰 쪽 인덱스의 절반으로 이동
+	int first = 0;
+	int last = m_Length - 1;
+
+	while (first <= last) {					// first가 last보다 작거나 같을 때만 실행한다.
+		int mid = (first + last) / 2;
+		
+		if (m_Array[mid] == data) {
+			data = m_Array[mid];			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
+			return mid;
+		} else {
+			if (m_Array[mid] > data) {
+				last = mid - 1;				// data가 m_Array[mid]보다 작으면, 위치를 앞으로 설정해준다.
+			} else {
+				first = mid + 1;			// data가 m_Array[mid]보다 크면, 위치를 뒤로 설정해준다.
+			}
 		}
 	}
+
 	return -1;
 }
 
@@ -290,18 +293,6 @@ int SortedList<T>::Replace(T data) {
 	}
 
 	return 0;					// id 일치하는 item을 찾지 못한다면 실패(0)을 리턴
-}
-
-// Read array from file
-template <class T>
-int SortedList<T>::ReadDataFromFile(ifstream& fin, int n) {
-	return 1;
-}
-
-// Write array to file
-template <class T>
-int SortedList<T>::WriteDataToFile(ofstream& fout) {
-	return 1;
 }
 
 #endif //_SORTEDLIST_H

@@ -81,17 +81,6 @@ public:
 	}
 
 	/**
-	*	@brief	Input stream에서 Queue를 적절하게 입력한다.
-	*	@pre	Input이 적절하게 있어야 함.
-	*	@post	Queue가 입력됨.
-	*	@param	in:		입력할 스트림
-	*	@param	data:	입력할 Queue
-	*/
-	friend std::istream& operator>> (std::istream &in, const Queue &data) {
-
-	}
-
-	/**
 	*	@brief	앞쪽 포인터를 리턴한다.
 	*	@pre	앞쪽 포인터가 정의되어야 함.
 	*	@post	앞쪽 포인터를 리턴함.

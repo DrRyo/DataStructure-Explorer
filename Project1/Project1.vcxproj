@@ -119,6 +119,7 @@
     <ClCompile Include="FileType.cpp" />
     <ClCompile Include="FolderType.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="Frequent.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="SortedList.h" />
+    <ClInclude Include="Windows.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />

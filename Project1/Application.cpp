@@ -7,10 +7,9 @@ void Application::Run()
 	bool cFlag = false;
 
 	while (1) {
-		system("cls");
-		DisplayProperty();
-
 		if (m_Command == -1) {
+			system("cls");
+			DisplayProperty();
 			m_Command = GetFolderCommand();
 		} else if (!cFlag) {
 			switch (m_Command) {
@@ -32,6 +31,7 @@ void Application::Run()
 				return;
 			default:
 				cout << "\tIllegal selection...\n";
+				system("pause");
 				break;
 			}
 
@@ -40,9 +40,9 @@ void Application::Run()
 			cFlag = true;
 		}
 
-		system("cls");
-		DisplayProperty();
 		if (m_Command == -1) {
+			system("cls");
+			DisplayProperty();
 			m_Command = GetFileCommand();
 		} else if (!cFlag) {
 			// if m_Command is not next command, execute folder command
@@ -64,6 +64,7 @@ void Application::Run()
 				break;
 			case 6:		// 현재 폴더 속성
 				DisplayProperty();
+				system("pause"); // 처음에 DisplayProperty()로 정보를 보여주기 때문에, 따로 보여주는건 일시정지를 해준다.
 				break;
 			case 7:		// 상위 폴더로 이동
 				MoveToParentFolder();
@@ -83,6 +84,7 @@ void Application::Run()
 				return;
 			default:
 				cout << "\tIllegal selection...\n";
+				system("pause");
 				break;
 			}
 
@@ -91,9 +93,9 @@ void Application::Run()
 			cFlag = true;
 		}
 
-		system("cls");
-		DisplayProperty();
-		if (m_Command == -1){
+		if (m_Command == -1) {
+			system("cls");
+			DisplayProperty();
 			m_Command = GetExplorerCommand();
 		} else if (!cFlag) {
 			switch (m_Command) {
@@ -101,7 +103,7 @@ void Application::Run()
 				NewFile();
 				break;
 			case 2:		// 파일 삭제하기 (이름)
-				DeleteFile();
+				DeleteFileA();
 				break;
 			case 3:		// 파일 수정하기 (이름)
 				RenameFile();
@@ -110,16 +112,16 @@ void Application::Run()
 				OpenFile();
 				break;
 			case 5:		// 자주가는 폴더 등록
-				SetAsFavoriteFolder();
+				SetAsFavoriteFile();
 				break;
-			case 6:		// 현재 폴더 복사
-				CopyFolder();
+			case 6:		// 선택 파일 복사
+				CopyFileA();
 				break;
-			case 7:		// 현재 폴더 잘라내기
-				CutFolder();
+			case 7:		// 선택 파일 잘라내기
+				CutFile();
 				break;
-			case 8:		// 현재 폴더 붙여넣기
-				PasteFolder();
+			case 8:		// 선택 파일 붙여넣기
+				PasteFile();
 				break;
 			case -1:	// 다음 명령어
 				break;
@@ -127,6 +129,7 @@ void Application::Run()
 				return;
 			default:
 				cout << "\tIllegal selection...\n";
+				system("pause");
 				break;
 			}
 
@@ -135,7 +138,8 @@ void Application::Run()
 			cFlag = true;
 		}
 
-		m_Command = -1, cFlag = false;
+		if (m_Command == -999) m_Command = -1;
+		if (cFlag) cFlag = false;
 	}
 }
 
@@ -153,7 +157,7 @@ int Application::GetFolderCommand() {
 	cout << "\t   7  : Move to parent folder" << endl;
 	cout << "\t   8  : Copy this folder" << endl;
 	cout << "\t   9  : Cut this folder" << endl;
-	cout << "\t  10  : Paste this folder" << endl;
+	cout << "\t  10  : Paste folder to this folder" << endl;
 	cout << "\t  -1  : Next commands" << endl;
 	cout << "\t   0  : Quit" << endl;
 
@@ -176,7 +180,7 @@ int Application::GetFileCommand() {
 	cout << "\t   5  : Set as favorite" << endl;
 	cout << "\t   6  : Copy file" << endl;
 	cout << "\t   7  : Cut file" << endl;
-	cout << "\t   8  : Paste file" << endl;
+	cout << "\t   8  : Paste file to this folder" << endl;
 	cout << "\t  -1  : Next commands" << endl;
 	cout << "\t   0  : Quit" << endl;
 
@@ -208,61 +212,102 @@ int Application::GetExplorerCommand() {
 
 // 새로운 폴더를 생성함.
 void Application::NewFolder() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
 	temp.SetPropertyFromKB(location);
-	temp.SetParent(m_curFolder);
+	temp.SetParent(m_CurFolder);
 
-	if (m_curFolder->GetSubFolderList()->Add(temp)) {
-		m_curFolder->SetModifyDateToNow();
-		m_curFolder->SetFolderNumber(m_curFolder->GetFolderNumber() + 1);
+	if (m_CurFolder->GetSubFolderList()->Add(temp)) {
+		m_CurFolder->SetModifyDateToNow();
+		m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
 	}
 }
 
 // 폴더 삭제
 void Application::DeleteFolder() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
 	temp.SetPropertyFromKB(location);
-	
-	if (m_curFolder->GetSubFolderList()->Delete(temp)) {
-		m_curFolder->SetModifyDateToNow();
-		m_curFolder->SetFolderNumber(m_curFolder->GetFolderNumber() - 1);
+
+	if (m_CurFolder->GetSubFolderList()->Delete(temp)) {
+		m_CurFolder->SetModifyDateToNow();
+		m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() - 1);
 	}
 }
 
-// TODO: Rename folder
+// Rename folder
 void Application::RenameFolder() {
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
+	cout << "\t바꾸고 싶은 폴더 이름을 입력해주세요." << endl;
+	FolderType* temp = new FolderType();
+	temp->SetPropertyFromKB(location);
 
+	if (m_CurFolder->GetSubFolderList()->GetBinary(*temp) != -1) {
+		cout << endl << "\t무엇으로 바꾸시겠습니까?" << endl;
+		FolderType *renew = new FolderType();
+		renew->SetPropertyFromKB(location);
+
+		if (m_CurFolder->GetSubFolderList()->GetBinary(*renew) == -1) {
+			if (m_CurFolder->GetSubFolderList()->Delete(*temp)) {
+				m_CurFolder->SetModifyDateToNow();
+				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() - 1);
+			} else {
+				cout << "\t폴더명 변경 실패!" << endl;
+				system("pause");
+				return;
+			}
+
+			temp->SetAccessDateToNow();
+			temp->SetName(renew->GetName());
+
+			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
+				m_CurFolder->SetModifyDateToNow();
+				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+			} else {
+				cout << "\t폴더명 변경 실패!" << endl;
+				system("pause");
+				return;
+			}
+		} else {
+			cout << "\t폴더명 중복입니다." << endl;
+			system("pause");
+		}
+	}
 }
 
 // 서브 폴더 열기
 void Application::OpenFolder() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
 	temp.SetPropertyFromKB(location);
 
-	int n = m_curFolder->GetSubFolderList()->GetBinary(temp);
+	int n = m_CurFolder->GetSubFolderList()->GetBinary(temp);
 
 	if (n == -1) {
 		cout << "해당 폴더가 존재하지 않습니다!" << endl;
+		system("pause");
 		return;
 	}
 
-	FolderType& result = (m_curFolder->GetSubFolderList()->GetArray())[n];
-	
+	FolderType& result = (m_CurFolder->GetSubFolderList()->GetArray())[n];
+
 	m_RecentFolder.EnQueue(result);
-	m_curFolder = &result;
-	m_curFolder->SetAccessDateToNow();
+	m_FrequentFolder.AddKey(result);
+	m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(result)]++;
+
+	m_CurFolder = &result;
+	m_CurFolder->SetAccessDateToNow();
 }
 
-// TODO: Set as favorite folder
+// Set as favorite folder
 void Application::SetAsFavoriteFolder() {
-	m_FavoriteFolder.EnQueue(*m_curFolder);
+	FolderType* temp = new FolderType(*m_CurFolder);
+	m_FavoriteFolder.EnQueue(*temp);
 }
 
 // 최근 열어본 폴더 출력
 void Application::DisplayRecentFolder() {
+	// TODO: 지금 존재하는 폴더인지 확인하고 아니면 모두 제거
 	cout << "\t=================" << endl;
 	cout << "\t[Recent Folder]" << endl;
 	cout << m_RecentFolder << endl;
@@ -270,6 +315,7 @@ void Application::DisplayRecentFolder() {
 
 // 좋아하는 폴더 출력
 void Application::DisplayFavoriteFolder() {
+	// TODO: 지금 존재하는 폴더인지 확인하고 아니면 모두 제거
 	cout << "\t=================" << endl;
 	cout << "\t[Favorite Folder]" << endl;
 	cout << m_FavoriteFolder << endl;
@@ -277,6 +323,7 @@ void Application::DisplayFavoriteFolder() {
 
 // 자주 사용하는 폴더 출력
 void Application::DisplayFrequentFolder() {
+	// TODO: 지금 존재하는 폴더인지 확인하고 아니면 모두 제거
 	cout << "\t=================" << endl;
 	cout << "\t[Frequent Folder]" << endl;
 	cout << m_FrequentFolder << endl;
@@ -284,91 +331,222 @@ void Application::DisplayFrequentFolder() {
 
 // 폴더 정보 출력
 void Application::DisplayProperty() {
-	cout << "\t==============" << endl; 
+	cout << "\t==============" << endl;
 	cout << "\t현재 폴더 정보" << endl;
-	cout << *m_curFolder << endl;
+	cout << *m_CurFolder << endl;
 
-	if (m_curFolder->GetFolderNumber() > 0) {
+	if (m_CurFolder->GetFolderNumber() > 0) {
 		cout << "\t----------------" << endl;
-		cout << "\t서브 폴더 리스트" << endl;
-		cout << *m_curFolder->GetSubFolderList();
+		cout << "\t서브 폴더 리스트 (" << m_CurFolder->GetFolderNumber() << "개)" << endl;
+		cout << *m_CurFolder->GetSubFolderList();
 	}
 
-	if (m_curFolder->GetFileNumber() > 0) {
+	if (m_CurFolder->GetFileNumber() > 0) {
 		cout << "\t----------------" << endl;
-		cout << "\t파일 리스트" << endl;
-		cout << *m_curFolder->GetFileList();
+		cout << "\t파일 리스트 (" << m_CurFolder->GetFileNumber() << "개)" << endl;
+		cout << *m_CurFolder->GetFileList();
+	}
+
+	if (m_CopyFolder->GetLength() > 0 || m_CutFolder->GetLength() > 0) {
+		cout << "\t----------------" << endl << "\t";
+		cout << m_CopyFolder->GetLength() << "개의 복사된 폴더, "
+			<< m_CutFolder->GetLength() << "개의 잘라낸 폴더가 있습니다." << endl;
+	}
+
+	if (m_CopyFile->GetLength() > 0 || m_CutFile->GetLength() > 0) {
+		cout << "\t----------------" << endl << "\t";
+		cout << m_CopyFile->GetLength() << "개의 복사된 파일, "
+			<< m_CutFile->GetLength() << "개의 잘라낸 파일이 있습니다." << endl;
 	}
 }
 
 // 상위 폴더로 이동
 void Application::MoveToParentFolder() {
-	if (m_curFolder->GetParent() == nullptr) {
+	if (m_CurFolder->GetParent() == nullptr) {
 		m_RecentFolder.EnQueue(m_RootFolder);
 		m_RootFolder.SetAccessDateToNow();
-		m_curFolder = &m_RootFolder;
+		m_FrequentFolder.AddKey(m_RootFolder);
+		m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(m_RootFolder)]++;
+		m_CurFolder = &m_RootFolder;
 	} else {
-		m_RecentFolder.EnQueue(*(m_curFolder->GetParent()));
-		m_curFolder->GetParent()->SetAccessDateToNow();
-		m_curFolder = m_curFolder->GetParent();
+		m_RecentFolder.EnQueue(*(m_CurFolder->GetParent()));
+		m_CurFolder->GetParent()->SetAccessDateToNow();
+		m_FrequentFolder.AddKey(*m_CurFolder->GetParent());
+		m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(*m_CurFolder->GetParent())]++;
+		m_CurFolder = m_CurFolder->GetParent();
 	}
 }
 
-// TODO: 폴더 복사
+// 폴더 복사
 void Application::CopyFolder() {
+	FolderType *temp = new FolderType(*m_CurFolder);
+	
+	// 이미 복사하고자 하는 폴더 리스트에 존재하면 실행을 종료
+	if (m_CopyFolder->GetBinary(*temp) != -1) return;
+	
+	if (m_CutFolder->GetBinary(*temp) == -1) {
+		m_CopyFolder->Add(*temp);
+	} else {
+		// 자를 폴더 리스트에 이미 있으면, 복사 폴더 리스트로 옮기기
+		m_CutFolder->Delete(*temp);
+		m_CopyFolder->Add(*temp);
+	}
 
+	MoveToParentFolder();
 }
 
-// TODO: 폴더 자르기
+// 폴더 자르기
 void Application::CutFolder() {
+	FolderType *temp = new FolderType(*m_CurFolder);
 
+	// 이미 자르고자 하는 폴더 리스트에 존재하면 실행을 종료
+	if (m_CutFolder->GetBinary(*temp) != -1) return;
+
+	if (m_CopyFolder->GetBinary(*temp) == -1) {
+		m_CutFolder->Add(*temp);
+	} else {
+		// 복사 폴더 리스트에 이미 있으면, 자를 폴더 리스트로 옮기기
+		m_CopyFolder->Delete(*temp);
+		m_CutFolder->Add(*temp);
+	}
+
+	MoveToParentFolder();
 }
 
-// TODO: 폴더 붙여넣기
-void Application::PasteFolder() {
+// 복사한 폴더 붙여넣기
+void Application::PasteCopyFolder() {
+	int i, j;
+	FolderType* temp;
 
+	for (i = 0; i < m_CopyFolder->GetLength(); i++) {
+		temp = new FolderType(m_CopyFolder->GetArray()[i]);
+
+		for (j = 0; j < m_CurFolder->GetFolderNumber(); j++) {
+			// 붙여넣기 할 폴더에 중복되는 이름을 가진 폴더가 있는지 확인한다.
+			if ((m_CurFolder->GetSubFolderList()->GetArray())[j].GetName()
+				== temp->GetName()) {
+				break;
+			}
+		}
+
+		if (j == m_CurFolder->GetFolderNumber()) {
+			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
+			temp->SetParent(m_CurFolder);
+			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+
+			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
+				m_CurFolder->SetModifyDateToNow();
+				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+			}
+
+			cout << "\tFolder " << temp->GetName() << " is successfully copied and pasted!" << endl;
+		} else {
+			// 중복되는 이름을 가진 폴더가 있다면, 에러를 띄우고 스킵한다.
+			cout << "\tFolder " << temp->GetName() << " is duplicated, program will skip this folder!" << endl;
+		}
+	}
+
+	delete m_CopyFolder;
+	m_CopyFolder = new SortedList<FolderType>();
+}
+
+// 잘라낸 폴더 붙여넣기
+void Application::PasteCutFolder() {
+	int i, j;
+	FolderType* temp;
+
+	for (i = 0; i < m_CutFolder->GetLength(); i++) {
+		temp = new FolderType(m_CutFolder->GetArray()[i]);
+
+		for (j = 0; j < m_CurFolder->GetFolderNumber(); j++) {
+			// 붙여넣기 할 폴더에 중복되는 이름을 가진 폴더가 있는지 확인한다.
+			if ((m_CurFolder->GetSubFolderList()->GetArray())[j].GetName()
+				== temp->GetName()) {
+				break;
+			}
+		}
+
+		if (j == m_CurFolder->GetFolderNumber()) {
+			// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 폴더를 삭제한다.
+			if (temp->GetParent()->GetSubFolderList()->Delete(*temp)) {
+				temp->GetParent()->SetModifyDateToNow();
+				temp->GetParent()->SetFolderNumber(temp->GetParent()->GetFolderNumber() - 1);
+			}
+
+			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
+			temp->SetParent(m_CurFolder);
+			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+
+			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
+				m_CurFolder->SetModifyDateToNow();
+				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+			}
+
+			cout << "\tFolder " << temp->GetName() << " is successfully cutted and pasted!" << endl;
+		} else {
+			// 중복되는 이름을 가진 폴더가 있다면, 에러를 띄우고 스킵한다.
+			cout << "\tFolder " << temp->GetName() << " is duplicated, program will skip this folder!" << endl;
+		}
+	}
+
+	delete m_CutFolder;
+	m_CutFolder = new SortedList<FolderType>();
+}
+
+// 폴더 붙여넣기
+void Application::PasteFolder() {
+	PasteCopyFolder();
+	PasteCutFolder();
+	system("pause");
 }
 
 // Add new file
 void Application::NewFile() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType temp;
 	temp.SetPropertyFromKB(location);
+	temp.SetParent(m_CurFolder);
 
-	if (m_curFolder->GetFileList()->Add(temp)) {
-		m_curFolder->SetModifyDateToNow();
-		m_curFolder->SetFileNumber(m_curFolder->GetFolderNumber() + 1);
+	if (m_CurFolder->GetFileList()->Add(temp)) {
+		m_CurFolder->SetModifyDateToNow();
+		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
 	}
 }
 
 // Delete file
-void Application::DeleteFile() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+void Application::DeleteFileA() {
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType temp;
 	temp.SetPropertyFromKB(location);
 
-	if (m_curFolder->GetFileList()->Delete(temp)) {
-		m_curFolder->SetModifyDateToNow();
-		m_curFolder->SetFolderNumber(m_curFolder->GetFolderNumber() - 1);
+	if (m_CurFolder->GetFileList()->Delete(temp)) {
+		m_CurFolder->SetModifyDateToNow();
+		m_CurFolder->SetFolderNumber(m_CurFolder->GetFileNumber() - 1);
 	}
 }
 
 // Rename file
 void Application::RenameFile() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	cout << "\t바꾸고 싶은 파일 이름을 입력해주세요." << endl;
 	FileType* temp = new FileType();
 	temp->SetPropertyFromKB(location);
 
-	if (m_curFolder->GetFileList()->GetBinary(*temp) != -1) {
-		cout << "\t무슨 이름으로 바꾸시겠습니까?" << endl;
-		FileType renew;
-		renew.SetPropertyFromKB(location);
+	if (m_CurFolder->GetFileList()->GetBinary(*temp) != -1) {
+		cout << endl << "\t무엇으로 바꾸시겠습니까?" << endl;
+		FileType *renew = new FileType();
+		renew->SetPropertyFromKB(location);
 
-		if (m_curFolder->GetFileList()->GetBinary(renew) == -1) {
+		if (m_CurFolder->GetFileList()->GetBinary(*renew) == -1) {
+			m_CurFolder->GetFileList()->Delete(*temp);
+
 			temp->SetAccessDateToNow();
-			temp->SetName(renew.GetName());
-		} else {
+			temp->SetName(renew->GetName());
+			temp->SetExtension(renew->GetExtension());
+
+			m_CurFolder->GetFileList()->Add(*temp);
+		}
+		else {
 			cout << "\t파일명 중복입니다." << endl;
 		}
 	}
@@ -376,53 +554,160 @@ void Application::RenameFile() {
 
 // Open file if exists in folder
 void Application::OpenFile() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType *temp = new FileType();
 	temp->SetPropertyFromKB(location);
 
-	if (m_curFolder->GetFileList()->GetBinary(*temp) == -1)
+	if (m_CurFolder->GetFileList()->GetBinary(*temp) == -1)
 		return;
 
 	m_RecentFile.EnQueue(*temp);
+	m_FrequentFile.AddKey(*temp);
+	m_FrequentFile.count[m_FrequentFile.GetIndexOfKey(*temp)]++;
 
-	ifstream file;
-	file.open(temp->GetName());
-
-	stringstream ss;
-
-	if (file.is_open()) {
-		ss << file.rdbuf();
-		cout << ss.str() << endl;
-	}
-
-	file.close();
-
-	string str;
-	cout << "\tInput? ";
-	cin >> str;
-
-	ofstream ofile;
-	ofile.open(temp->GetName(), ios_base::app);
-
-	ofile << str;
-
-	temp->SetModifyDateToNow();
-	temp->SetAccessDateToNow();
-
-	return;
+	Windows::ExecuteFile(location, temp->GetName(), temp->GetExtension());
 }
 
-// TODO: Set as favorite file
+// Set as favorite file
 void Application::SetAsFavoriteFile() {
-	string location = m_curFolder->GetLocation() + m_curFolder->GetName() + "/";
+	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType* temp = new FileType();
 	temp->SetPropertyFromKB(location);
 
-	if (m_curFolder->GetFileList()->GetBinary(*temp) != -1) {
+	if (m_CurFolder->GetFileList()->GetBinary(*temp) != -1) {
 		m_FavoriteFile.EnQueue(*temp);
 	} else {
 		cout << "There is no such file." << endl;
+		system("pause");
 	}
+}
+
+// Copy file
+void Application::CopyFileA() {
+	FileType *temp = new FileType();
+	temp->SetPropertyFromKB(m_CurFolder->GetLocation () + m_CurFolder->GetName () + "\\");
+
+	// 복사하고자 하는 파일이 현재 폴더에 존재하지 않으면 실행을 종료
+	if (m_CurFolder->GetFileList()->GetBinary(*temp) == -1) return;
+
+	// 이미 복사하고자 하는 파일 리스트에 존재하면 실행을 종료
+	if (m_CopyFile->GetBinary(*temp) != -1) return;
+
+	if (m_CutFile->GetBinary(*temp) == -1) {
+		m_CopyFile->Add(*temp);
+	} else {
+		// 자를 파일 리스트에 이미 있으면, 복사 파일 리스트로 옮기기
+		m_CutFile->Delete(*temp);
+		m_CopyFile->Add(*temp);
+	}
+}
+
+// Cut file
+void Application::CutFile() {
+	FileType *temp = new FileType();
+	temp->SetPropertyFromKB(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+
+	// 복사하고자 하는 파일이 현재 폴더에 존재하지 않으면 실행을 종료
+	if (m_CurFolder->GetFileList()->GetBinary(*temp) == -1) return;
+
+	// 이미 자르고자 하는 파일 리스트에 존재하면 실행을 종료
+	if (m_CutFile->GetBinary(*temp) != -1) return;
+
+	if (m_CopyFile->GetBinary(*temp) == -1) {
+		m_CutFile->Add(*temp);
+	} else {
+		// 복사 파일 리스트에 이미 있으면, 자를 파일 리스트로 옮기기
+		m_CopyFile->Delete(*temp);
+		m_CutFile->Add(*temp);
+	}
+}
+
+// Paste copy file
+void Application::PasteCopyFile() {
+	int i, j;
+	FileType* temp;
+
+	for (i = 0; i < m_CopyFile->GetLength(); i++) {
+		temp = new FileType(m_CopyFile->GetArray()[i]);
+
+		for (j = 0; j < m_CurFolder->GetFileNumber(); j++) {
+			// 붙여넣기 할 폴더에 중복되는 이름을 가진 파일이 있는지 확인한다.
+			if ((m_CurFolder->GetFileList()->GetArray())[j].GetName() == temp->GetName()
+				&& (m_CurFolder->GetFileList()->GetArray())[j].GetExtension() == temp->GetExtension()) {
+				break;
+			}
+		}
+
+		if (j == m_CurFolder->GetFileNumber()) {
+			// 중복되는 이름을 가진 파일이 없다면, 붙여넣는다.
+			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+
+			if (m_CurFolder->GetFileList()->Add(*temp)) {
+				m_CurFolder->SetModifyDateToNow();
+				m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
+			}
+
+			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
+				<< " is successfully copied and pasted!" << endl;
+		} else {
+			// 중복되는 이름을 가진 파일이 있다면, 에러를 띄우고 스킵한다.
+			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
+				<< " is duplicated, program will skip this file!" << endl;
+		}
+	}
+	delete m_CopyFile;
+	m_CopyFile = new SortedList<FileType>();
+}
+
+// Paste cut file
+void Application::PasteCutFile() {
+	int i, j;
+	FileType* temp;
+
+	for (i = 0; i < m_CutFile->GetLength(); i++) {
+		temp = new FileType(m_CutFile->GetArray()[i]);
+
+		for (j = 0; j < m_CurFolder->GetFileNumber(); j++) {
+			// 붙여넣기 할 폴더에 중복되는 이름을 가진 파일이 있는지 확인한다.
+			if ((m_CurFolder->GetFileList()->GetArray())[j].GetName() == temp->GetName()
+				&& (m_CurFolder->GetFileList()->GetArray())[j].GetExtension() == temp->GetExtension()) {
+				break;
+			}
+		}
+
+		if (j == m_CurFolder->GetFileNumber()) {
+			// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 파일을 삭제한다.
+			if (temp->GetParent()->GetFileList()->Delete(*temp)) {
+				temp->GetParent()->SetModifyDateToNow();
+				temp->GetParent()->SetFileNumber(temp->GetParent()->GetFileNumber() - 1);
+			}
+
+			// 중복되는 이름을 가진 파일이 없다면, 붙여넣는다.
+			temp->SetParent(m_CurFolder);
+			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+
+			if (m_CurFolder->GetFileList()->Add(*temp)) {
+				m_CurFolder->SetModifyDateToNow();
+				m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
+			}
+
+			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
+				<< " is successfully cutted and pasted!" << endl;
+		} else {
+			// 중복되는 이름을 가진 파일이 있다면, 에러를 띄우고 스킵한다.
+			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
+				<< " is duplicated, program will skip this file!" << endl;
+		}
+	}
+	delete m_CutFile;
+	m_CutFile = new SortedList<FileType>();
+}
+
+// Paste file
+void Application::PasteFile() {
+	PasteCopyFile();
+	PasteCutFile();
+	system("pause");
 }
 
 // Search folder or file in whole system
@@ -430,8 +715,9 @@ void Application::Search() {
 	string word;
 	cout << "\tSearch word? ";
 	cin >> word;
-	
+
 	RecursiveSearch(&m_RootFolder, word);
+	system("pause");
 }
 
 // Temporary function to search recursively
@@ -478,20 +764,30 @@ void Application::DisplayFrequentFile() {
 void Application::DisplayRecent() {
 	DisplayRecentFolder();
 	DisplayRecentFile();
+	system("pause");
 }
 
 // Display favorite folder or file
 void Application::DisplayFavorite() {
 	DisplayFavoriteFolder();
 	DisplayFavoriteFile();
+	system("pause");
 }
 
-// Display Frequent folder or file
+// TODO: Display Frequent folder or file
 void Application::DisplayFrequent() {
 	DisplayFrequentFolder();
 	DisplayFrequentFile();
+	system("pause");
 }
 
-// TODO: 파일시스템으로부터 구조 읽어들이기
+// 파일시스템으로부터 구조 읽어들이기
 void Application::ReadDataFromSystem() {
+	if (Windows::ReadStructureFromSystem(m_RootFolder)) {
+		cout << "Read Success!" << endl;
+	} else {
+		cout << "Read Fail!" << endl;
+	}
+
+	system("pause");
 }

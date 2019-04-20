@@ -25,7 +25,7 @@
 */
 int main() {
 	// Create app that has "root" folder name.
-	Application app("root", "/");
+	Application app("root", ".\\");
 	app.Run();
 
 	return 0;
