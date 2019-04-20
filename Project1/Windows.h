@@ -7,7 +7,6 @@
 #include <fstream>
 #include <filesystem>
 
-// 순환 참조를 해결하기 위함
 class FolderType;
 
 using namespace std;
@@ -117,7 +116,14 @@ namespace Windows {
 	*	@pre	root 폴더가 존재해야한다.
 	*	@post	폴더 구조를 읽어 메모리에 할당한다.
 	*/
-	bool ReadStructureFromSystem(FolderType& root);
+	bool ReadStructureFromSystem(FolderType* root);
+
+	/**
+	*	@brief	Read Structure Recursively
+	*	@pre	root 폴더가 존재해야한다.
+	*	@post	폴더 구조를 읽어 메모리에 할당한다.
+	*/
+	void RecursiveReadStructure(FolderType* root, string path);
 }
 
 #endif //_WINDOWS_H

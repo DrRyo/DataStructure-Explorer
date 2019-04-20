@@ -159,25 +159,6 @@ public:
 	*/
 	int Replace(T data);
 
-	/**
-	*	@brief	파일로부터 데이터를 읽어오는 함수
-	*	@pre	none.
-	*	@post	none.
-	*	@param	fin: 읽을 파일
-	*	@param	n: 정보를 읽을 멤버 수
-	*	@return	성공적으로 읽었다면 1, 아니면 0을 리턴한다.
-	*/
-	int ReadDataFromFile(ifstream& fin, int n);
-
-	/**
-	*	@brief	파일에 데이터를 저장하는 함수
-	*	@pre	none.
-	*	@post	none.
-	*	@param	fout: 데이터를 쓸 파일
-	*	@return	성공적으로 썼다면 1, 아니면 0을 리턴한다.
-	*/
-	int WriteDataToFile(ofstream& fout);
-
 private:
 	T* m_Array;			///< list array.
 	int m_Length;		///< number of elements in list.

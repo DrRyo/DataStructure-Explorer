@@ -1,4 +1,5 @@
 ﻿#include "Windows.h"
+#include "FolderType.h"
 
 namespace fs = std::filesystem;
 
@@ -98,7 +99,51 @@ namespace Windows {
 	}
 
 	// TODO: Read Structure From Windows
-	bool ReadStructureFromSystem(FolderType& root) {
-		return false;
+	bool ReadStructureFromSystem(FolderType* root) {
+		string path = root->GetLocation() + root->GetName() + "\\";
+
+		for (const auto & entry : fs::recursive_directory_iterator(path)) {
+			cout << "\t" << entry.path() << endl;
+		}
+
+		try {
+			RecursiveReadStructure(root, path);
+			return true;
+		} catch (...) {
+			return false;
+		}
+	}
+
+	// Recursively read folder, file structure
+	void RecursiveReadStructure(FolderType* root, string path) {
+		for (const auto & entry : fs::directory_iterator(path)) {
+			if (entry.is_directory()) {
+				string name = entry.path().filename().u8string();
+				string location = entry.path().parent_path().u8string() + "\\";
+
+				FolderType *d = new FolderType(name, location, root);
+
+				if (root->GetSubFolderList()->Add(*d)) {
+					root->SetFolderNumber(root->GetFolderNumber() + 1);
+				}
+
+				int n = root->GetSubFolderList()->GetBinary(*d);
+				RecursiveReadStructure(&root->GetSubFolderList()->GetArray()[n], entry.path().u8string() + "\\");
+				delete d;
+			} else {
+				size_t l = entry.path().filename().u8string().find_last_of(".");
+				string name = entry.path().filename().u8string().substr(0, l);
+				string extension = entry.path().extension().u8string().erase(0, 1);
+				string location = entry.path().parent_path().u8string() + "\\";
+
+				FileType *f = new FileType(name, extension, location, root);
+
+				if (root->GetFileList()->Add(*f)) {
+					root->SetFileNumber(root->GetFileNumber() + 1);
+				}
+
+				delete f;
+			}
+		}
 	}
 }

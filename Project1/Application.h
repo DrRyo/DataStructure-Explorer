@@ -67,8 +67,6 @@ public:
 		delete m_CopyFile;
 		delete m_CutFolder;
 		delete m_CutFile;
-
-		Windows::DeleteDirectoryWithPath(".\\", "root");
 	}
 
 	/**

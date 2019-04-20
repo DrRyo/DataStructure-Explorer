@@ -1,5 +1,4 @@
 ﻿#include "FolderType.h"
-#include "SortedList.h"
 
 using namespace std;
 

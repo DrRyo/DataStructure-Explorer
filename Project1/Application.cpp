@@ -25,6 +25,9 @@ void Application::Run()
 			case 4:		// 자주 사용한 폴더 및 파일 출력
 				DisplayFrequent();
 				break;
+			case 5:		// 시스템에서 폴더, 파일 구조 읽어들이기
+				ReadDataFromSystem();
+				break;
 			case -1:	// 다음 명령어
 				break;
 			case 0:		// 탐색기 종료
@@ -200,6 +203,7 @@ int Application::GetExplorerCommand() {
 	cout << "\t   2  : Recent" << endl;
 	cout << "\t   3  : Favorite" << endl;
 	cout << "\t   4  : Frequent" << endl;
+	cout << "\t   5  : Read structure from system" << endl;
 	cout << "\t  -1  : Next commands" << endl;
 	cout << "\t   0  : Quit" << endl;
 
@@ -223,7 +227,7 @@ void Application::NewFolder() {
 
 		// Create new folder in Windows
 		if (!Windows::CreateDirectoryWithPath(location + temp.GetName())) {
-			cout << "Fail to create directory in Windows!" << endl;
+			cout << "\tFail to create directory in Windows!" << endl;
 			system("pause");
 		}
 	}
@@ -241,7 +245,7 @@ void Application::DeleteFolder() {
 
 		// Delete folder in Windows
 		if (!Windows::DeleteDirectoryWithPath(location, temp.GetName())) {
-			cout << "Fail to delete directory in Windows!" << endl;
+			cout << "\tFail to delete directory in Windows!" << endl;
 			system("pause");
 		}
 	}
@@ -305,6 +309,7 @@ void Application::OpenFolder() {
 	}
 
 	FolderType& result = (m_CurFolder->GetSubFolderList()->GetArray())[n];
+	result.SetParent(m_CurFolder);
 
 	m_RecentFolder.EnQueue(result);
 	m_FrequentFolder.AddKey(result);
@@ -446,7 +451,8 @@ void Application::PasteCopyFolder() {
 
 		if (j == m_CurFolder->GetFolderNumber()) {
 			// Copy and paste in Windows
-			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), m_CurFolder->GetLocation());
+			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), 
+									  m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 
 			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
 			temp->SetParent(m_CurFolder);
@@ -471,7 +477,7 @@ void Application::PasteCopyFolder() {
 // 잘라낸 폴더 붙여넣기
 void Application::PasteCutFolder() {
 	int i, j;
-	FolderType* temp;
+	FolderType* temp, *copy;
 
 	for (i = 0; i < m_CutFolder->GetLength(); i++) {
 		temp = new FolderType(m_CutFolder->GetArray()[i]);
@@ -486,22 +492,31 @@ void Application::PasteCutFolder() {
 
 		if (j == m_CurFolder->GetFolderNumber()) {
 			// Cut and paste in Windows
-			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), m_CurFolder->GetLocation());
+			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), 
+									  m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 			Windows::DeleteDirectoryWithPath(temp->GetLocation(), temp->GetName());
 
-			// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 폴더를 삭제한다.
-			if (temp->GetParent()->GetSubFolderList()->Delete(*temp)) {
-				temp->GetParent()->SetModifyDateToNow();
-				temp->GetParent()->SetFolderNumber(temp->GetParent()->GetFolderNumber() - 1);
-			}
+			copy = new FolderType(*temp);
 
 			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
-			temp->SetParent(m_CurFolder);
-			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+			copy->SetParent(m_CurFolder);
+			copy->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 
-			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
+			if (m_CurFolder->GetSubFolderList()->Add(*copy)) {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+			}
+			delete copy;
+
+			if (j == m_CurFolder->GetFolderNumber()) {
+				// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 폴더를 삭제한다.
+				FolderType child = m_CutFolder->GetArray()[i];
+				FolderType parent = *m_CutFolder->GetArray()[i].GetParent();
+
+				if (parent.GetSubFolderList()->Delete(child)) {
+					parent.SetModifyDateToNow();
+					parent.SetFolderNumber(parent.GetFolderNumber() - 1);
+				}
 			}
 
 			cout << "\tFolder " << temp->GetName() << " is successfully cutted and pasted!" << endl;
@@ -535,7 +550,7 @@ void Application::NewFile() {
 		
 		// Create new file in Windows
 		if (!Windows::CreateFileWithPath(location, temp.GetName(), temp.GetExtension())) {
-			cout << "Fail to create file in Windows!" << endl;
+			cout << "\tFail to create file in Windows!" << endl;
 			system("pause");
 		}
 	}
@@ -553,7 +568,7 @@ void Application::DeleteFileA() {
 
 		// Delete file in Windows
 		if (!Windows::DeleteFileWithPath(location, temp.GetName(), temp.GetExtension())) {
-			cout << "Fail to delete file in Windows!" << endl;
+			cout << "\tFail to delete file in Windows!" << endl;
 			system("pause");
 		}
 	}
@@ -615,7 +630,7 @@ void Application::SetAsFavoriteFile() {
 	if (m_CurFolder->GetFileList()->GetBinary(*temp) != -1) {
 		m_FavoriteFile.EnQueue(*temp);
 	} else {
-		cout << "There is no such file." << endl;
+		cout << "\tThere is no such file." << endl;
 		system("pause");
 	}
 }
@@ -679,7 +694,7 @@ void Application::PasteCopyFile() {
 		if (j == m_CurFolder->GetFileNumber()) {
 			// Copy and paste in Windows
 			Windows::CopyFileWithPath(temp->GetLocation(), temp->GetName(), temp->GetExtension(),
-									  m_CurFolder->GetLocation());
+									  m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 
 			// 중복되는 이름을 가진 파일이 없다면, 붙여넣는다.
 			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
@@ -720,7 +735,7 @@ void Application::PasteCutFile() {
 		if (j == m_CurFolder->GetFileNumber()) {
 			// Cut and paste in Windows
 			Windows::CopyFileWithPath(temp->GetLocation(), temp->GetName(), temp->GetExtension(),
-									  m_CurFolder->GetLocation());
+									  m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 			Windows::DeleteFileWithPath(temp->GetLocation(), temp->GetName(), temp->GetExtension());
 
 			// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 파일을 삭제한다.
@@ -830,11 +845,10 @@ void Application::DisplayFrequent() {
 
 // 파일시스템으로부터 구조 읽어들이기
 void Application::ReadDataFromSystem() {
-	if (Windows::ReadStructureFromSystem(m_RootFolder)) {
-		cout << "Read Success!" << endl;
+	if (Windows::ReadStructureFromSystem(&m_RootFolder)) {
+		cout << "\tRead Success!" << endl;
 	} else {
-		cout << "Read Fail!" << endl;
+		cout << "\tRead Fail!" << endl;
+		system("pause");
 	}
-
-	system("pause");
 }
