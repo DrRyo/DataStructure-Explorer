@@ -51,6 +51,16 @@ namespace Windows {
 	bool DeleteDirectoryWithPath(string location, string name);
 
 	/**
+	*	@brief	Copy directory in specific location
+	*	@pre	특정 위치의 폴더 문자열이 주어진다.
+	*	@post	폴더를 이동한다.
+	*	@param	from:	기존 폴더 위치
+	*	@param	name:	복사할 폴더명
+	*	@param	to:		복사할 폴더 위치
+	*/
+	bool CopyDirectoryWithPath(string from, string name, string to);
+
+	/**
 	*	@brief	Create file in specific location
 	*	@pre	특정 위치의 파일 문자열이 주어진다.
 	*	@post	빈 파일이 생성된다.
@@ -81,6 +91,16 @@ namespace Windows {
 	*	@param	extension:	파일 확장자
 	*/
 	bool DeleteFileWithPath(string location, string name, string extension);
+
+	/**
+	*	@brief	Copy file in specific location
+	*	@pre	특정 위치의 파일 문자열이 주어진다.
+	*	@post	파일을 이동한다.
+	*	@param	from:	기존 폴더 위치
+	*	@param	name:	복사할 파일명
+	*	@param	to:		복사할 폴더 위치
+	*/
+	bool CopyFileWithPath(string from, string name, string extension, string to);
 
 	/**
 	*	@brief	Execute file in Windows

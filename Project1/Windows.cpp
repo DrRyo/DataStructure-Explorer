@@ -36,6 +36,16 @@ namespace Windows {
 		}
 	}
 
+	// Copy directory in specific location
+	bool CopyDirectoryWithPath(string from, string name, string to) {
+		try {
+			fs::copy(from + name, to + name, fs::copy_options::recursive);
+			return true;
+		} catch (...) {
+			return false;
+		}
+	}
+
 	// Create file in specific location
 	bool CreateFileWithPath(string location, string name, string extension) {
 		ofstream out;
@@ -61,6 +71,16 @@ namespace Windows {
 	bool DeleteFileWithPath(string location, string name, string extension) {
 		try {
 			return fs::remove(location + name + "." + extension);
+		} catch (...) {
+			return false;
+		}
+	}
+
+	// Copy file in specific location
+	bool CopyFileWithPath(string from, string name, string extension, string to) {
+		try {
+			fs::copy_file(from + name + "." + extension, to + name + "." + extension);
+			return true;
 		} catch (...) {
 			return false;
 		}

@@ -19,6 +19,7 @@
 */
 
 #include "Application.h"
+#include "Windows.h"
 
 /**
 *	program main function for data structures course.

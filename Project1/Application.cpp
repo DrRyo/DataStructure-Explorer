@@ -445,6 +445,9 @@ void Application::PasteCopyFolder() {
 		}
 
 		if (j == m_CurFolder->GetFolderNumber()) {
+			// Copy and paste in Windows
+			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), m_CurFolder->GetLocation());
+
 			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
 			temp->SetParent(m_CurFolder);
 			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
@@ -482,6 +485,10 @@ void Application::PasteCutFolder() {
 		}
 
 		if (j == m_CurFolder->GetFolderNumber()) {
+			// Cut and paste in Windows
+			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), m_CurFolder->GetLocation());
+			Windows::DeleteDirectoryWithPath(temp->GetLocation(), temp->GetName());
+
 			// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 폴더를 삭제한다.
 			if (temp->GetParent()->GetSubFolderList()->Delete(*temp)) {
 				temp->GetParent()->SetModifyDateToNow();
@@ -670,6 +677,10 @@ void Application::PasteCopyFile() {
 		}
 
 		if (j == m_CurFolder->GetFileNumber()) {
+			// Copy and paste in Windows
+			Windows::CopyFileWithPath(temp->GetLocation(), temp->GetName(), temp->GetExtension(),
+									  m_CurFolder->GetLocation());
+
 			// 중복되는 이름을 가진 파일이 없다면, 붙여넣는다.
 			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 
@@ -707,6 +718,11 @@ void Application::PasteCutFile() {
 		}
 
 		if (j == m_CurFolder->GetFileNumber()) {
+			// Cut and paste in Windows
+			Windows::CopyFileWithPath(temp->GetLocation(), temp->GetName(), temp->GetExtension(),
+									  m_CurFolder->GetLocation());
+			Windows::DeleteFileWithPath(temp->GetLocation(), temp->GetName(), temp->GetExtension());
+
 			// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 파일을 삭제한다.
 			if (temp->GetParent()->GetFileList()->Delete(*temp)) {
 				temp->GetParent()->SetModifyDateToNow();

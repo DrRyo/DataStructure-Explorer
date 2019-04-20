@@ -55,12 +55,21 @@ public:
 
 		m_CurFolder = &m_RootFolder;
 		m_RecentFolder.EnQueue(*m_CurFolder);
+
+		Windows::CreateDirectoryWithPath(".\\root");
 	}
 
 	/**
 	*	destructor.
 	*/
-	~Application() {}
+	~Application() {
+		delete m_CopyFolder;
+		delete m_CopyFile;
+		delete m_CutFolder;
+		delete m_CutFile;
+
+		Windows::DeleteDirectoryWithPath(".\\", "root");
+	}
 
 	/**
 	*	@brief	어플리케이션 실행
