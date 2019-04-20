@@ -220,6 +220,12 @@ void Application::NewFolder() {
 	if (m_CurFolder->GetSubFolderList()->Add(temp)) {
 		m_CurFolder->SetModifyDateToNow();
 		m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+
+		// Create new folder in Windows
+		if (!Windows::CreateDirectoryWithPath(location + temp.GetName())) {
+			cout << "Fail to create directory in Windows!" << endl;
+			system("pause");
+		}
 	}
 }
 
@@ -232,6 +238,12 @@ void Application::DeleteFolder() {
 	if (m_CurFolder->GetSubFolderList()->Delete(temp)) {
 		m_CurFolder->SetModifyDateToNow();
 		m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() - 1);
+
+		// Delete folder in Windows
+		if (!Windows::DeleteDirectoryWithPath(location, temp.GetName())) {
+			cout << "Fail to delete directory in Windows!" << endl;
+			system("pause");
+		}
 	}
 }
 
@@ -257,6 +269,9 @@ void Application::RenameFolder() {
 				return;
 			}
 
+			// Rename folder in Windows
+			Windows::RenameDirectoryWithPath(location, temp->GetName(), renew->GetName());
+			
 			temp->SetAccessDateToNow();
 			temp->SetName(renew->GetName());
 
@@ -510,6 +525,12 @@ void Application::NewFile() {
 	if (m_CurFolder->GetFileList()->Add(temp)) {
 		m_CurFolder->SetModifyDateToNow();
 		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
+		
+		// Create new file in Windows
+		if (!Windows::CreateFileWithPath(location, temp.GetName(), temp.GetExtension())) {
+			cout << "Fail to create file in Windows!" << endl;
+			system("pause");
+		}
 	}
 }
 
@@ -521,7 +542,13 @@ void Application::DeleteFileA() {
 
 	if (m_CurFolder->GetFileList()->Delete(temp)) {
 		m_CurFolder->SetModifyDateToNow();
-		m_CurFolder->SetFolderNumber(m_CurFolder->GetFileNumber() - 1);
+		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() - 1);
+
+		// Delete file in Windows
+		if (!Windows::DeleteFileWithPath(location, temp.GetName(), temp.GetExtension())) {
+			cout << "Fail to delete file in Windows!" << endl;
+			system("pause");
+		}
 	}
 }
 
@@ -539,6 +566,10 @@ void Application::RenameFile() {
 
 		if (m_CurFolder->GetFileList()->GetBinary(*renew) == -1) {
 			m_CurFolder->GetFileList()->Delete(*temp);
+
+			// Rename file in Windows
+			Windows::RenameFileWithPath(location, temp->GetName(), temp->GetExtension(),
+												renew->GetName(), renew->GetExtension());
 
 			temp->SetAccessDateToNow();
 			temp->SetName(renew->GetName());

@@ -5,7 +5,7 @@
 
 #include <string>
 #include <fstream>
-#include <ShlObj.h>
+#include <filesystem>
 
 #include "FolderType.h"
 
@@ -13,20 +13,32 @@ using namespace std;
 
 namespace Windows {
 	/**
-	*	@brief	Convert string to PCWSTR (Pointer to Constant unicode Wide_STRing)
-	*	@pre	string variable is given
-	*	@post	PCWSTR variable returns
-	*	@param	str:	string variable that converts to PCWSTR
-	*/
-	PCWSTR StringToPCWSTR(const string& str);
-
-	/**
 	*	@brief	Create directory in specific location
 	*	@pre	특정 위치의 폴더 문자열이 주어진다.
 	*	@post	새 폴더를 생성한다.
 	*	@param	folderWithPath:	생성되어야 하는 폴더
+	*	@return	성공 시 true, 실패 시 false 반환
 	*/
-	int CreateDirectoryWithPath(string folderWithPath);
+	bool CreateDirectoryWithPath(string folderWithPath);
+
+	/**
+	*	@brief	Rename directory in specific location
+	*	@pre	특정 위치의 폴더 문자열이 주어진다.
+	*	@post	폴더명을 변경한다.
+	*	@param	location:		폴더 위치
+	*	@param	name:			변경되어야 하는 폴더
+	*	@param	rename:			바꿀 폴더 명
+	*/
+	void RenameDirectoryWithPath(string location, string name, string rename);
+
+	/**
+	*	@brief	Delete directory in specific location
+	*	@pre	특정 위치의 폴더 문자열이 주어진다.
+	*	@post	폴더를 삭제한다.
+	*	@param	location:	폴더 위치
+	*	@param	name:		삭제할 폴더명
+	*/
+	bool DeleteDirectoryWithPath(string location, string name);
 
 	/**
 	*	@brief	Create file in specific location
@@ -36,7 +48,29 @@ namespace Windows {
 	*	@param	name:		파일명
 	*	@param	extension:	파일 확장자
 	*/
-	int CreateFileWithPath(string location, string name, string extension);
+	bool CreateFileWithPath(string location, string name, string extension);
+
+	/**
+	*	@brief	Rename file in specific location
+	*	@pre	특정 위치의 파일 문자열이 주어진다.
+	*	@post	파일명이 변경된다.
+	*	@param	location:	파일 위치
+	*	@param	name:		파일명
+	*	@param	extension:	파일 확장자
+	*	@param	rename:		바꿀 파일명
+	*	@param	reextension:바꿀 확장자
+	*/
+	void RenameFileWithPath(string location, string name, string extension, string rename, string reextension);
+
+	/**
+	*	@brief	Delete file in specific location
+	*	@pre	특정 위치의 파일 문자열이 주어진다.
+	*	@post	파일이 삭제된다.
+	*	@param	location:	파일 위치
+	*	@param	name:		파일명
+	*	@param	extension:	파일 확장자
+	*/
+	bool DeleteFileWithPath(string location, string name, string extension);
 
 	/**
 	*	@brief	Execute file in Windows
