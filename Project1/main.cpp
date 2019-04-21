@@ -1,6 +1,6 @@
 ﻿/**
 *	@mainpage	Folder Explorer
-*				This is a simple example of Lab03 on data structures course.<br>
+*				This is a middle project on data structures course.<br>
 *
 *				- Doxygen GUI 설정법<br>
 *				Step 1: Doxygen 으로 문서화 할 프로젝트 경로 삽입.<br>
@@ -12,14 +12,13 @@
 *				Step 6: Run 탭의 Run doxygen 수행 후, "Doxygen has finished" 확인.<br>
 *
 *				- 한글사용을 위해서는 Doxywizard에서 아래와 같이 설정할 것.<br>
-*				Expert 탭 -> Input (Topics 에서 선택) -> INPUT_ENCODING 을 "EUC-KR" 로 설정.
+*				Expert 탭 -> Input (Topics 에서 선택) -> INPUT_ENCODING 을 "UTF-8" 로 설정.
 *
 *	@date		2019-04-18
 *	@author		전자공학과 2014103991 우주현
 */
 
 #include "Application.h"
-#include "Windows.h"
 
 /**
 *	program main function for data structures course.

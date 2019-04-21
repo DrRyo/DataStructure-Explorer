@@ -9,10 +9,24 @@ using namespace std;
 
 constexpr int MAX = 5;
 
+/**
+*	Explorer specialized key-value data structure for counting frequency
+*/
 template <class T>
 struct Frequent {
+	/**
+	*	Data Length
+	*/
 	int length = 0;
+
+	/**
+	*	Specific class to count frequency
+	*/
 	T* data = new T[0];
+
+	/**
+	*	Counting data
+	*/
 	int* count = new int[0];
 
 	/**
@@ -22,6 +36,7 @@ struct Frequent {
 
 	/**
 	*	default copy constructor
+	*	@param	f:	복사할 Frequent 데이터
 	*/
 	Frequent(const Frequent& f) {
 		operator=(f);
@@ -54,6 +69,9 @@ struct Frequent {
 		}
 	}
 
+	/**
+	*	= operator
+	*/
 	Frequent& operator=(const Frequent& f) {
 		if (this != &f) {
 			delete[] data;
@@ -98,25 +116,25 @@ struct Frequent {
 
 	/**
 	*	@brief	< operator
-	*	@param	data:	비교할 Frequent 데이터
+	*	@param	f:	비교할 Frequent 데이터
 	*/
 	inline bool operator< (const Frequent& f) { return data < f.data; }
 
 	/**
 	*	@brief	> operator
-	*	@param	data:	비교할 Frequent 데이터
+	*	@param	f:	비교할 Frequent 데이터
 	*/
 	inline bool operator> (const Frequent& f) { return data > f.data; }
 
 	/**
 	*	@brief	<= operator
-	*	@param	data:	비교할 Frequent 데이터
+	*	@param	f:	비교할 Frequent 데이터
 	*/
 	inline bool operator<=(const Frequent& f) { return data <= f.data; }
 
 	/**
 	*	@brief	>= operator
-	*	@param	data:	비교할 Frequent 데이터
+	*	@param	f:	비교할 Frequent 데이터
 	*/
 	inline bool operator>=(const Frequent& f) { return data >= f.data; }
 

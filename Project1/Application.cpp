@@ -278,10 +278,11 @@ void Application::RenameFolder() {
 			
 			temp->SetAccessDateToNow();
 			temp->SetName(renew->GetName());
-
+			
 			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+				RecursiveUpdateLocation(m_CurFolder, location);
 			} else {
 				cout << "\t폴더명 변경 실패!" << endl;
 				system("pause");
@@ -327,7 +328,6 @@ void Application::SetAsFavoriteFolder() {
 
 // 최근 열어본 폴더 출력
 void Application::DisplayRecentFolder() {
-	// TODO: 지금 존재하는 폴더인지 확인하고 아니면 모두 제거
 	cout << "\t=================" << endl;
 	cout << "\t[Recent Folder]" << endl;
 	cout << m_RecentFolder << endl;
@@ -335,7 +335,6 @@ void Application::DisplayRecentFolder() {
 
 // 좋아하는 폴더 출력
 void Application::DisplayFavoriteFolder() {
-	// TODO: 지금 존재하는 폴더인지 확인하고 아니면 모두 제거
 	cout << "\t=================" << endl;
 	cout << "\t[Favorite Folder]" << endl;
 	cout << m_FavoriteFolder << endl;
@@ -343,7 +342,6 @@ void Application::DisplayFavoriteFolder() {
 
 // 자주 사용하는 폴더 출력
 void Application::DisplayFrequentFolder() {
-	// TODO: 지금 존재하는 폴더인지 확인하고 아니면 모두 제거
 	cout << "\t=================" << endl;
 	cout << "\t[Frequent Folder]" << endl;
 	cout << m_FrequentFolder << endl;
@@ -450,17 +448,19 @@ void Application::PasteCopyFolder() {
 		}
 
 		if (j == m_CurFolder->GetFolderNumber()) {
+			string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
+
 			// Copy and paste in Windows
-			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), 
-									  m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), location);
 
 			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
 			temp->SetParent(m_CurFolder);
-			temp->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+			temp->SetLocation(location);
 
 			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+				RecursiveUpdateLocation(m_CurFolder, location);
 			}
 
 			cout << "\tFolder " << temp->GetName() << " is successfully copied and pasted!" << endl;
@@ -491,20 +491,21 @@ void Application::PasteCutFolder() {
 		}
 
 		if (j == m_CurFolder->GetFolderNumber()) {
+			string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 			// Cut and paste in Windows
-			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), 
-									  m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+			Windows::CopyDirectoryWithPath(temp->GetLocation(), temp->GetName(), location);
 			Windows::DeleteDirectoryWithPath(temp->GetLocation(), temp->GetName());
 
 			copy = new FolderType(*temp);
 
 			// 중복되는 이름을 가진 폴더가 없다면, 붙여넣는다.
 			copy->SetParent(m_CurFolder);
-			copy->SetLocation(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+			copy->SetLocation(location);
 
 			if (m_CurFolder->GetSubFolderList()->Add(*copy)) {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
+				RecursiveUpdateLocation(m_CurFolder, location);
 			}
 			delete copy;
 
@@ -528,6 +529,29 @@ void Application::PasteCutFolder() {
 
 	delete m_CutFolder;
 	m_CutFolder = new SortedList<FolderType>();
+}
+
+void Application::RecursiveUpdateLocation(FolderType *list, string location) {
+	for (int i = 0; i < list->GetFileNumber(); i++) {
+		SortedList<FileType>* flist = list->GetFileList();
+
+		if (flist->GetArray()[i].GetLocation() != location) {
+			flist->GetArray()[i].SetLocation(location);
+		}
+	}
+
+	for (int i = 0; i < list->GetFolderNumber(); i++) {
+		SortedList<FolderType>* dlist = list->GetSubFolderList();
+
+		if (dlist->GetArray()[i].GetLocation() != location) {
+			dlist->GetArray()[i].SetLocation(location);
+		}
+
+		if (dlist->GetArray()[i].GetFolderNumber() > 0
+			|| dlist->GetArray()[i].GetFileNumber() > 0) {
+			RecursiveUpdateLocation(&dlist->GetArray()[i], location + dlist->GetArray()[i].GetName() + "\\");
+		}
+	}
 }
 
 // 폴더 붙여넣기
@@ -789,11 +813,12 @@ void Application::RecursiveSearch(FolderType* f, string w) {
 	int i;
 	a.SetName(w), b.SetName(w);
 
-	f->GetSubFolderList()->Get(a);
-	f->GetFileList()->Get(b);
+	if(f->GetFolderNumber() > 0) f->GetSubFolderList()->Get(a);
+	if(f->GetFileNumber() > 0) f->GetFileList()->Get(b);
 
 	for (i = 0; i < f->GetFolderNumber(); i++) {
-		if (f->GetSubFolderList()->GetArray()[i].GetFolderNumber() > 0) {
+		if (f->GetSubFolderList()->GetArray()[i].GetFolderNumber() > 0
+			|| f->GetSubFolderList()->GetArray()[i].GetFileNumber() > 0) {
 			RecursiveSearch(&f->GetSubFolderList()->GetArray()[i], w);
 		}
 	}
@@ -836,7 +861,7 @@ void Application::DisplayFavorite() {
 	system("pause");
 }
 
-// TODO: Display Frequent folder or file
+// Display Frequent folder or file
 void Application::DisplayFrequent() {
 	DisplayFrequentFolder();
 	DisplayFrequentFile();
@@ -845,9 +870,7 @@ void Application::DisplayFrequent() {
 
 // 파일시스템으로부터 구조 읽어들이기
 void Application::ReadDataFromSystem() {
-	if (Windows::ReadStructureFromSystem(&m_RootFolder)) {
-		cout << "\tRead Success!" << endl;
-	} else {
+	if (!Windows::ReadStructureFromSystem(&m_RootFolder)) {
 		cout << "\tRead Fail!" << endl;
 		system("pause");
 	}

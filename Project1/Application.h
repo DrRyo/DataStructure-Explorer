@@ -167,6 +167,15 @@ public:
 	void MoveToParentFolder();
 
 	/**
+	*	@brief	하위의 서브폴더 위치 값을 모두 갱신해준다.
+	*	@pre	갱신되지 않은 서브폴더 리스트가 주어짐.
+	*	@post	위치 정보가 갱신됨.
+	*	@param	list:		FolderType 변수
+	*	@param	location:	갱신할 위치 문자열
+	*/
+	void RecursiveUpdateLocation(FolderType *list, string location);
+
+	/**
 	*	@brief	폴더를 복사함.
 	*	@pre	현재 폴더를 복사한다.
 	*	@post	변수에 현재 폴더 주소값이 저장됨.

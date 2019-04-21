@@ -98,13 +98,9 @@ namespace Windows {
 		}
 	}
 
-	// TODO: Read Structure From Windows
+	// Read Structure From Windows
 	bool ReadStructureFromSystem(FolderType* root) {
 		string path = root->GetLocation() + root->GetName() + "\\";
-
-		for (const auto & entry : fs::recursive_directory_iterator(path)) {
-			cout << "\t" << entry.path() << endl;
-		}
 
 		try {
 			RecursiveReadStructure(root, path);
