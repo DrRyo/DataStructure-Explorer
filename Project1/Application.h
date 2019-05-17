@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
-using namespace std;
 
 #include "SortedList.h"
 #include "Queue.h"
@@ -15,6 +14,8 @@ using namespace std;
 #include "Frequent.h"
 
 #include "Windows.h"
+
+using namespace std;
 
 /**
 *	application class for folder management simply.
