@@ -112,16 +112,6 @@ public:
 		return m_Length;
 	}
 
-	/**
-	*	@brief	Get records in current list.
-	*	@pre	none.
-	*	@post	none.
-	*	@return	Records in current list.
-	*/
-	T* GetArray() const {
-		return new T[1];
-	}
-
 	T GetValue(int index) const {
 		return *m_Array[index];
 	}
