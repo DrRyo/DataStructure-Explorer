@@ -60,6 +60,10 @@ public:
 		operator=(fType);
 	}
 
+	FileType(FileType* fType) {
+		operator=(fType);
+	}
+
 	/**
 	*	destructor.
 	*/
@@ -69,6 +73,8 @@ public:
 	*	= operator
 	*/
 	FileType& operator= (const FileType& data);
+
+	FileType& operator= (FileType* data);
 
 	/**
 	*	== operator

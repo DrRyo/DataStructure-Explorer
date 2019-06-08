@@ -69,6 +69,10 @@ public:
 		operator=(folderType);
 	}
 
+	FolderType(FolderType * folderType) {
+		operator=(folderType);
+	}
+
 	/**
 	*	destructor.
 	*/
@@ -84,6 +88,8 @@ public:
 	*	= operator
 	*/
 	FolderType& operator= (const FolderType& data);
+
+	FolderType& operator= (FolderType* data);
 
 	/**
 	*	== operator
@@ -453,19 +459,19 @@ public:
 		}
 
 		for (int i = 0; i < m_folderNumber; i++) {
-			jsFolder.push(u::JSValue(m_folderList->GetArray()[i].to_jsobject()));
+			jsFolder.push(u::JSValue(m_folderList->GetRef(i)->to_jsobject()));
 		}
 
 		jsObj["folderList"] = u::JSValue(jsFolder);
 
 		for (auto i = 0; i < m_fileNumber; i++) {
 			u::JSObject obj;
-			obj["name"] = m_fileList->GetArray()[i].GetName().c_str();
-			obj["extension"] = m_fileList->GetArray()[i].GetExtension().c_str();
-			obj["location"] = m_fileList->GetArray()[i].GetLocation().c_str();
-			obj["createDate"] = m_fileList->GetArray()[i].GetCreateDate().c_str();
-			obj["modifyDate"] = m_fileList->GetArray()[i].GetModifyDate().c_str();
-			obj["accessDate"] = m_fileList->GetArray()[i].GetAccessDate().c_str();
+			obj["name"] = m_fileList->GetRef(i)->GetName().c_str();
+			obj["extension"] = m_fileList->GetRef(i)->GetExtension().c_str();
+			obj["location"] = m_fileList->GetRef(i)->GetLocation().c_str();
+			obj["createDate"] = m_fileList->GetRef(i)->GetCreateDate().c_str();
+			obj["modifyDate"] = m_fileList->GetRef(i)->GetModifyDate().c_str();
+			obj["accessDate"] = m_fileList->GetRef(i)->GetAccessDate().c_str();
 
 			jsFile.push(u::JSValue(obj));
 		}

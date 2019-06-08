@@ -20,6 +20,23 @@ FolderType & FolderType::operator=(const FolderType & data) {
 	return *this;
 }
 
+FolderType & FolderType::operator=(FolderType * data) {
+	if (this != data) {
+		SetName(data->GetName());
+		SetLocation(data->GetLocation());
+		SetCreateDate(data->GetCreateDate());
+		SetModifyDate(data->GetModifyDate());
+		SetAccessDate(data->GetAccessDate());
+		SetFolderNumber(data->GetFolderNumber());
+		SetFileNumber(data->GetFileNumber());
+		SetSubFolderList(data->GetSubFolderList());
+		SetFileList(data->GetFileList());
+		SetParent(data->GetParent());
+	}
+
+	return *this;
+}
+
 // Operator == to support compare two FolderType
 bool FolderType::operator==(const FolderType & data) {
 	if (m_Name == data.GetName() && m_Location == data.GetLocation()) {

@@ -17,6 +17,20 @@ FileType & FileType::operator=(const FileType & data) {
 	return *this;
 }
 
+FileType & FileType::operator=(FileType * data) {
+	if (this != data) {
+		SetName(data->GetName());
+		SetExtension(data->GetExtension());
+		SetLocation(data->GetLocation());
+		SetParent(data->GetParent());
+		SetCreateDate(data->GetCreateDate());
+		SetModifyDate(data->GetModifyDate());
+		SetAccessDate(data->GetAccessDate());
+	}
+
+	return *this;
+}
+
 // Operator == to support compare two FolderType
 bool FileType::operator==(const FileType & data) {
 	if (m_Name == data.GetName()
