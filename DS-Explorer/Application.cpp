@@ -98,7 +98,7 @@ void Application::OpenFolder(const JSObject& thisObject, const JSArgs& args) {
 		return;
 	}
 
-	FolderType& result = (m_CurFolder->GetSubFolderList()->GetArray())[n];
+	FolderType& result = *m_CurFolder->GetSubFolderList()->GetRef(n);
 	result.SetParent(m_CurFolder);
 
 	m_RecentFolder.EnQueue(result);
@@ -226,11 +226,11 @@ void Application::PasteCopyFolder() {
 	FolderType* temp;
 
 	for (i = 0; i < m_CopyFolder->GetLength(); i++) {
-		temp = new FolderType(m_CopyFolder->GetArray()[i]);
+		temp = new FolderType(m_CopyFolder->GetRef(i));
 
 		for (j = 0; j < m_CurFolder->GetFolderNumber(); j++) {
 			// 붙여넣기 할 폴더에 중복되는 이름을 가진 폴더가 있는지 확인한다.
-			if ((m_CurFolder->GetSubFolderList()->GetArray())[j].GetName()
+			if (m_CurFolder->GetSubFolderList()->GetRef(j)->GetName()
 				== temp->GetName()) {
 				break;
 			}
@@ -269,11 +269,11 @@ void Application::PasteCutFolder() {
 	FolderType* temp, *copy;
 
 	for (i = 0; i < m_CutFolder->GetLength(); i++) {
-		temp = new FolderType(m_CutFolder->GetArray()[i]);
+		temp = new FolderType(m_CutFolder->GetRef(i));
 
 		for (j = 0; j < m_CurFolder->GetFolderNumber(); j++) {
 			// 붙여넣기 할 폴더에 중복되는 이름을 가진 폴더가 있는지 확인한다.
-			if ((m_CurFolder->GetSubFolderList()->GetArray())[j].GetName()
+			if (m_CurFolder->GetSubFolderList()->GetRef(j)->GetName()
 				== temp->GetName()) {
 				break;
 			}
@@ -300,8 +300,8 @@ void Application::PasteCutFolder() {
 
 			if (j == m_CurFolder->GetFolderNumber()) {
 				// 복사와는 다르게, 자르기에선 원본 폴더에서 해당 폴더를 삭제한다.
-				FolderType child = m_CutFolder->GetArray()[i];
-				FolderType parent = *m_CutFolder->GetArray()[i].GetParent();
+				FolderType child = m_CutFolder->GetRef(i);
+				FolderType parent = *m_CutFolder->GetRef(i)->GetParent();
 
 				if (parent.GetSubFolderList()->Delete(child)) {
 					parent.SetModifyDateToNow();
@@ -324,21 +324,21 @@ void Application::RecursiveUpdateLocation(FolderType *list, string location) {
 	for (int i = 0; i < list->GetFileNumber(); i++) {
 		SortedList<FileType>* flist = list->GetFileList();
 
-		if (flist->GetArray()[i].GetLocation() != location) {
-			flist->GetArray()[i].SetLocation(location);
+		if (flist->GetRef(i)->GetLocation() != location) {
+			flist->GetRef(i)->SetLocation(location);
 		}
 	}
 
 	for (int i = 0; i < list->GetFolderNumber(); i++) {
 		SortedList<FolderType>* dlist = list->GetSubFolderList();
 
-		if (dlist->GetArray()[i].GetLocation() != location) {
-			dlist->GetArray()[i].SetLocation(location);
+		if (dlist->GetRef(i)->GetLocation() != location) {
+			dlist->GetRef(i)->SetLocation(location);
 		}
 
-		if (dlist->GetArray()[i].GetFolderNumber() > 0
-			|| dlist->GetArray()[i].GetFileNumber() > 0) {
-			RecursiveUpdateLocation(&dlist->GetArray()[i], location + dlist->GetArray()[i].GetName() + "\\");
+		if (dlist->GetRef(i)->GetFolderNumber() > 0
+			|| dlist->GetRef(i)->GetFileNumber() > 0) {
+			RecursiveUpdateLocation(&dlist->GetArray()[i], location + dlist->GetRef(i)->GetName() + "\\");
 		}
 	}
 }
@@ -498,12 +498,12 @@ void Application::PasteCopyFile() {
 	FileType* temp;
 
 	for (i = 0; i < m_CopyFile->GetLength(); i++) {
-		temp = new FileType(m_CopyFile->GetArray()[i]);
+		temp = new FileType(m_CopyFile->GetRef(i));
 
 		for (j = 0; j < m_CurFolder->GetFileNumber(); j++) {
 			// 붙여넣기 할 폴더에 중복되는 이름을 가진 파일이 있는지 확인한다.
-			if ((m_CurFolder->GetFileList()->GetArray())[j].GetName() == temp->GetName()
-				&& (m_CurFolder->GetFileList()->GetArray())[j].GetExtension() == temp->GetExtension()) {
+			if (m_CurFolder->GetFileList()->GetRef(j)->GetName() == temp->GetName()
+				&& m_CurFolder->GetFileList()->GetRef(j)->GetExtension() == temp->GetExtension()) {
 				break;
 			}
 		}
@@ -539,12 +539,12 @@ void Application::PasteCutFile() {
 	FileType* temp;
 
 	for (i = 0; i < m_CutFile->GetLength(); i++) {
-		temp = new FileType(m_CutFile->GetArray()[i]);
+		temp = new FileType(m_CutFile->GetRef(i));
 
 		for (j = 0; j < m_CurFolder->GetFileNumber(); j++) {
 			// 붙여넣기 할 폴더에 중복되는 이름을 가진 파일이 있는지 확인한다.
-			if ((m_CurFolder->GetFileList()->GetArray())[j].GetName() == temp->GetName()
-				&& (m_CurFolder->GetFileList()->GetArray())[j].GetExtension() == temp->GetExtension()) {
+			if (m_CurFolder->GetFileList()->GetRef(j)->GetName() == temp->GetName()
+				&& m_CurFolder->GetFileList()->GetRef(j)->GetExtension() == temp->GetExtension()) {
 				break;
 			}
 		}
@@ -610,9 +610,9 @@ void Application::RecursiveSearch(FolderType* f, string w) {
 	if(f->GetFileNumber() > 0) f->GetFileList()->Get(b);
 
 	for (i = 0; i < f->GetFolderNumber(); i++) {
-		if (f->GetSubFolderList()->GetArray()[i].GetFolderNumber() > 0
-			|| f->GetSubFolderList()->GetArray()[i].GetFileNumber() > 0) {
-			RecursiveSearch(&f->GetSubFolderList()->GetArray()[i], w);
+		if (f->GetSubFolderList()->GetRef(i)->GetFolderNumber() > 0
+			|| f->GetSubFolderList()->GetRef(i)->GetFileNumber() > 0) {
+			RecursiveSearch(f->GetSubFolderList()->GetRef(i), w);
 		}
 	}
 

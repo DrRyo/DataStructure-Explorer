@@ -15,7 +15,7 @@ public:
 	*/
 	SortedList() {
 		m_Length = 0;
-		m_Array = new T[0];
+		m_Array = new T*[0];
 	}
 
 	/**
@@ -30,7 +30,15 @@ public:
 	*/
 	~SortedList() {
 		if (m_Length)
+		{
+			for (int i = 0; i < m_Length; i++)
+			{
+				if (m_Array[i])
+					delete m_Array[i];
+			}
+
 			delete[] m_Array;
+		}
 	}
 
 	/**
@@ -42,10 +50,10 @@ public:
 				delete[] m_Array;
 
 			m_Length = data.GetLength();
-			m_Array = new T[m_Length];
+			m_Array = new T*[m_Length];
 
 			for (int i = 0; i < data.GetLength(); i++) {
-				this->m_Array[i] = data.GetArray()[i];
+				this->m_Array[i] = data.m_Array[i];
 			}
 		}
 
@@ -81,7 +89,7 @@ public:
 		cout << "\t[SortedList]\t" << endl;
 
 		for (int i = 0; i < data.GetLength(); i++) {
-			cout << data.GetArray()[i] << endl;
+			cout << *data.m_Array[i] << endl;
 		}
 
 		return out;
@@ -104,14 +112,12 @@ public:
 		return m_Length;
 	}
 
-	/**
-	*	@brief	Get records in current list.
-	*	@pre	none.
-	*	@post	none.
-	*	@return	Records in current list.
-	*/
-	T* GetArray() const{
-		return m_Array; 
+	T GetValue(int index) const {
+		return *m_Array[index];
+	}
+
+	T* GetRef(int index) const {
+		return m_Array[index];
 	}
 
 	/**
@@ -160,7 +166,7 @@ public:
 	int Replace(T data);
 
 private:
-	T* m_Array;			///< list array.
+	T** m_Array;			///< list array.
 	int m_Length;		///< number of elements in list.
 };
 
@@ -174,13 +180,15 @@ void SortedList<T>::MakeEmpty() {
 template <class T>
 int SortedList<T>::Add(T inData) {
 	for (int i = 0; i < m_Length; i++) {
-		if (m_Array[i] == inData) {
+		if (*(m_Array[i]) == inData) {
 			return 0;
 		}
 	}
 
+	T* newItem = new T(inData);
+
 	// temp를 확장한 크기의 배열로 생성하고, m_Array의 데이터를 모두 옮겨준다.
-	T* temp = new T[m_Length + 1];
+	T** temp = new T*[m_Length + 1];
 	for (int i = 0; i < m_Length; i++) {
 		temp[i] = m_Array[i];
 	}
@@ -190,10 +198,10 @@ int SortedList<T>::Add(T inData) {
 	m_Array = temp;
 
 	for (int i = 0; i <= m_Length; i++) {
-		if (m_Array[i] > inData || i == m_Length) {	// 만약 m_Array[i] > inData일 경우 혹은 배열의 마지막이라서 비교 대상이 없는 경우
+		if (i == m_Length || *(m_Array[i]) > inData) {	// 만약 m_Array[i] > inData일 경우 혹은 배열의 마지막이라서 비교 대상이 없는 경우
 			for (int j = m_Length; j > i; j--)		// 맨 뒤에서 부터 하나씩 당긴다.
 				m_Array[j] = m_Array[j - 1];		// 배열 밀기
-			m_Array[i] = inData;					// 배열을 밀은 후 현재 포인터에 아이템 넣는다.
+			m_Array[i] = newItem;					// 배열을 밀은 후 현재 포인터에 아이템 넣는다.
 			m_Length++;
 			return 1;
 		}
@@ -208,8 +216,8 @@ int SortedList<T>::Get(T& data) {
 	bool found = false;
 
 	for (int i = 0; i < m_Length; i++) {
-		if (m_Array[i].GetName().find(data.GetName()) != string::npos) {
-			cout << m_Array[i] << endl;
+		if ((*m_Array[i]).GetName().find(data.GetName()) != string::npos) {
+			cout << *(m_Array[i]) << endl;
 			found = true;
 		}
 	}
@@ -233,11 +241,11 @@ int SortedList<T>::GetBinary(T& data) {
 	while (first <= last) {					// first가 last보다 작거나 같을 때만 실행한다.
 		int mid = (first + last) / 2;
 		
-		if (m_Array[mid] == data) {
-			data = m_Array[mid];			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
+		if (*(m_Array[mid]) == data) {
+			data = *(m_Array[mid]);			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
 			return mid;
 		} else {
-			if (m_Array[mid] > data) {
+			if (*(m_Array[mid]) > data) {
 				last = mid - 1;				// data가 m_Array[mid]보다 작으면, 위치를 앞으로 설정해준다.
 			} else {
 				first = mid + 1;			// data가 m_Array[mid]보다 크면, 위치를 뒤로 설정해준다.
@@ -254,6 +262,9 @@ int SortedList<T>::Delete(T data) {
 	int pos = GetBinary(data);
 
 	if (pos != -1) {							// id가 일치하는 item을 발견한다면(1)
+
+		delete m_Array[pos];
+
 		for (int i = pos; i < m_Length - 1; i++)// 현재 포인터부터 입력된 배열 끝까지 반복
 			m_Array[i] = m_Array[i + 1];		// 배열 뒤의 원소를 앞으로 하나씩 땡김
 		m_Length--;								// 아이템 개수를 하나 줄임
@@ -269,7 +280,7 @@ int SortedList<T>::Replace(T data) {
 	int pos = GetBinary(data);
 
 	if (pos != -1) {			// 일치하는 아이템을 찾은 경우
-		m_Array[pos] = data;	// 배열에서 현재포인터가 가르키는 것을 백업했던 아이템으로 교체시킴
+		*(m_Array[pos]) = data;	// 배열에서 현재포인터가 가르키는 것을 백업했던 아이템으로 교체시킴
 		return 1;				// 성공(1)을 리턴
 	}
 
