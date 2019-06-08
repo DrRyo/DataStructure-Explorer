@@ -26,16 +26,19 @@ void Application::NewFolder(const JSObject& thisObject, const JSArgs& args) {
 void Application::DeleteFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
-	temp.SetPropertyFromKB(location);
+	temp.SetLocation(location);
+	temp.SetName(std::string(((String)args[0]).utf8().data()));
 
 	if (m_CurFolder->GetSubFolderList()->Delete(temp)) {
 		m_CurFolder->SetModifyDateToNow();
 		m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() - 1);
 
 		// Delete folder in Windows
-		if (!Windows::DeleteDirectoryWithPath(location, temp.GetName())) {
-			cout << "\tFail to delete directory in Windows!" << endl;
-			system("pause");
+		if (Windows::DeleteDirectoryWithPath(location, temp.GetName())) {
+			if (UpdateCurrentFolderObject.IsValid()) {
+				JSObject jso = m_CurFolder->to_jsobject();
+				UpdateCurrentFolderObject(jso, { 0 });
+			}
 		}
 	}
 }
@@ -45,20 +48,20 @@ void Application::RenameFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	cout << "\t바꾸고 싶은 폴더 이름을 입력해주세요." << endl;
 	FolderType* temp = new FolderType();
-	temp->SetPropertyFromKB(location);
+	temp->SetLocation(location);
+	temp->SetName(std::string(((String)args[0]).utf8().data()));
 
 	if (m_CurFolder->GetSubFolderList()->GetBinary(*temp) != -1) {
 		cout << endl << "\t무엇으로 바꾸시겠습니까?" << endl;
 		FolderType *renew = new FolderType();
-		renew->SetPropertyFromKB(location);
+		renew->SetLocation(location);
+		renew->SetName(std::string(((String)args[1]).utf8().data()));
 
 		if (m_CurFolder->GetSubFolderList()->GetBinary(*renew) == -1) {
 			if (m_CurFolder->GetSubFolderList()->Delete(*temp)) {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() - 1);
 			} else {
-				cout << "\t폴더명 변경 실패!" << endl;
-				system("pause");
 				return;
 			}
 
@@ -72,14 +75,16 @@ void Application::RenameFolder(const JSObject& thisObject, const JSArgs& args) {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
 				RecursiveUpdateLocation(m_CurFolder, location);
+
+				if (UpdateCurrentFolderObject.IsValid()) {
+					JSObject jso = m_CurFolder->to_jsobject();
+					UpdateCurrentFolderObject(jso, { 0 });
+				}
 			} else {
-				cout << "\t폴더명 변경 실패!" << endl;
-				system("pause");
 				return;
 			}
 		} else {
-			cout << "\t폴더명 중복입니다." << endl;
-			system("pause");
+			return;
 		}
 	}
 }
@@ -88,7 +93,8 @@ void Application::RenameFolder(const JSObject& thisObject, const JSArgs& args) {
 void Application::OpenFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
-	temp.SetPropertyFromKB(location);
+	temp.SetLocation(location);
+	temp.SetName(std::string(((String)args[0]).utf8().data()));
 
 	int n = m_CurFolder->GetSubFolderList()->GetBinary(temp);
 
@@ -107,6 +113,11 @@ void Application::OpenFolder(const JSObject& thisObject, const JSArgs& args) {
 
 	m_CurFolder = &result;
 	m_CurFolder->SetAccessDateToNow();
+
+	if (UpdateCurrentFolderObject.IsValid()) {
+		JSObject jso = m_CurFolder->to_jsobject();
+		UpdateCurrentFolderObject(jso, { 0 });
+	}
 }
 
 // Set as favorite folder
@@ -115,60 +126,8 @@ void Application::SetAsFavoriteFolder() {
 	m_FavoriteFolder.EnQueue(*temp);
 }
 
-// 최근 열어본 폴더 출력
-void Application::DisplayRecentFolder() {
-	cout << "\t=================" << endl;
-	cout << "\t[Recent Folder]" << endl;
-	cout << m_RecentFolder << endl;
-}
-
-// 좋아하는 폴더 출력
-void Application::DisplayFavoriteFolder() {
-	cout << "\t=================" << endl;
-	cout << "\t[Favorite Folder]" << endl;
-	cout << m_FavoriteFolder << endl;
-}
-
-// 자주 사용하는 폴더 출력
-void Application::DisplayFrequentFolder() {
-	cout << "\t=================" << endl;
-	cout << "\t[Frequent Folder]" << endl;
-	cout << m_FrequentFolder << endl;
-}
-
-// 폴더 정보 출력
-void Application::DisplayProperty() {
-	cout << "\t==============" << endl;
-	cout << "\t현재 폴더 정보" << endl;
-	cout << *m_CurFolder << endl;
-
-	if (m_CurFolder->GetFolderNumber() > 0) {
-		cout << "\t----------------" << endl;
-		cout << "\t서브 폴더 리스트 (" << m_CurFolder->GetFolderNumber() << "개)" << endl;
-		cout << *m_CurFolder->GetSubFolderList();
-	}
-
-	if (m_CurFolder->GetFileNumber() > 0) {
-		cout << "\t----------------" << endl;
-		cout << "\t파일 리스트 (" << m_CurFolder->GetFileNumber() << "개)" << endl;
-		cout << *m_CurFolder->GetFileList();
-	}
-
-	if (m_CopyFolder->GetLength() > 0 || m_CutFolder->GetLength() > 0) {
-		cout << "\t----------------" << endl << "\t";
-		cout << m_CopyFolder->GetLength() << "개의 복사된 폴더, "
-			<< m_CutFolder->GetLength() << "개의 잘라낸 폴더가 있습니다." << endl;
-	}
-
-	if (m_CopyFile->GetLength() > 0 || m_CutFile->GetLength() > 0) {
-		cout << "\t----------------" << endl << "\t";
-		cout << m_CopyFile->GetLength() << "개의 복사된 파일, "
-			<< m_CutFile->GetLength() << "개의 잘라낸 파일이 있습니다." << endl;
-	}
-}
-
 // 상위 폴더로 이동
-void Application::MoveToParentFolder() {
+void Application::MoveToParentFolder(const JSObject& thisObject, const JSArgs& args) {
 	if (m_CurFolder->GetParent() == nullptr) {
 		m_RecentFolder.EnQueue(m_RootFolder);
 		m_RootFolder.SetAccessDateToNow();
@@ -181,6 +140,11 @@ void Application::MoveToParentFolder() {
 		m_FrequentFolder.AddKey(*m_CurFolder->GetParent());
 		m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(*m_CurFolder->GetParent())]++;
 		m_CurFolder = m_CurFolder->GetParent();
+	}
+
+	if (UpdateCurrentFolderObject.IsValid()) {
+		JSObject jso = m_CurFolder->to_jsobject();
+		UpdateCurrentFolderObject(jso, { 0 });
 	}
 }
 
@@ -198,8 +162,6 @@ void Application::CopyFolder() {
 		m_CutFolder->Delete(*temp);
 		m_CopyFolder->Add(*temp);
 	}
-
-	MoveToParentFolder();
 }
 
 // 폴더 자르기
@@ -216,8 +178,6 @@ void Application::CutFolder() {
 		m_CopyFolder->Delete(*temp);
 		m_CutFolder->Add(*temp);
 	}
-
-	MoveToParentFolder();
 }
 
 // 복사한 폴더 붙여넣기
@@ -338,7 +298,7 @@ void Application::RecursiveUpdateLocation(FolderType *list, string location) {
 
 		if (dlist->GetRef(i)->GetFolderNumber() > 0
 			|| dlist->GetRef(i)->GetFileNumber() > 0) {
-			RecursiveUpdateLocation(&dlist->GetArray()[i], location + dlist->GetRef(i)->GetName() + "\\");
+			RecursiveUpdateLocation(dlist->GetRef(i), location + dlist->GetRef(i)->GetName() + "\\");
 		}
 	}
 }
@@ -374,34 +334,40 @@ void Application::NewFile(const JSObject& thisObject, const JSArgs& args) {
 }
 
 // Delete file
-void Application::DeleteFileA() {
+void Application::DeleteFileA(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType temp;
-	temp.SetPropertyFromKB(location);
+	temp.SetLocation(location);
+	temp.SetName(std::string(((String)args[0]).utf8().data()));
+	temp.SetExtension(std::string(((String)args[1]).utf8().data()));
 
 	if (m_CurFolder->GetFileList()->Delete(temp)) {
 		m_CurFolder->SetModifyDateToNow();
 		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() - 1);
 
 		// Delete file in Windows
-		if (!Windows::DeleteFileWithPath(location, temp.GetName(), temp.GetExtension())) {
-			cout << "\tFail to delete file in Windows!" << endl;
-			system("pause");
+		if (Windows::DeleteFileWithPath(location, temp.GetName(), temp.GetExtension())) {
+			if (UpdateCurrentFolderObject.IsValid()) {
+				JSObject jso = m_CurFolder->to_jsobject();
+				UpdateCurrentFolderObject(jso, { 0 });
+			}
 		}
 	}
 }
 
 // Rename file
-void Application::RenameFile() {
+void Application::RenameFile(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
-	cout << "\t바꾸고 싶은 파일 이름을 입력해주세요." << endl;
 	FileType* temp = new FileType();
-	temp->SetPropertyFromKB(location);
+	temp->SetLocation(location);
+	temp->SetName(std::string(((String)args[0]).utf8().data()));
+	temp->SetExtension(std::string(((String)args[1]).utf8().data()));
 
 	if (m_CurFolder->GetFileList()->GetBinary(*temp) != -1) {
-		cout << endl << "\t무엇으로 바꾸시겠습니까?" << endl;
 		FileType *renew = new FileType();
-		renew->SetPropertyFromKB(location);
+		renew->SetLocation(location);
+		renew->SetName(std::string(((String)args[2]).utf8().data()));
+		renew->SetExtension(std::string(((String)args[3]).utf8().data()));
 
 		if (m_CurFolder->GetFileList()->GetBinary(*renew) == -1) {
 			m_CurFolder->GetFileList()->Delete(*temp);
@@ -423,10 +389,12 @@ void Application::RenameFile() {
 }
 
 // Open file if exists in folder
-void Application::OpenFile() {
+void Application::OpenFile(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType *temp = new FileType();
-	temp->SetPropertyFromKB(location);
+	temp->SetLocation(location);
+	temp->SetName(std::string(((String)args[0]).utf8().data()));
+	temp->SetExtension(std::string(((String)args[1]).utf8().data()));
 
 	if (m_CurFolder->GetFileList()->GetBinary(*temp) == -1)
 		return;
@@ -617,48 +585,6 @@ void Application::RecursiveSearch(FolderType* f, string w) {
 	}
 
 	return;
-}
-
-// 최근 열어본 파일 출력
-void Application::DisplayRecentFile() {
-	cout << "\t=============" << endl;
-	cout << "\t[Recent File]" << endl;
-	cout << m_RecentFile << endl;
-}
-
-// 좋아하는 파일 출력
-void Application::DisplayFavoriteFile() {
-	cout << "\t=============" << endl;
-	cout << "\t[Favorite File]" << endl;
-	cout << m_FavoriteFile << endl;
-}
-
-// 자주 사용하는 파일 출력
-void Application::DisplayFrequentFile() {
-	cout << "\t=============" << endl;
-	cout << "\t[Frequent File]" << endl;
-	cout << m_FrequentFile << endl;
-}
-
-// Display recent folder or file
-void Application::DisplayRecent() {
-	DisplayRecentFolder();
-	DisplayRecentFile();
-	system("pause");
-}
-
-// Display favorite folder or file
-void Application::DisplayFavorite() {
-	DisplayFavoriteFolder();
-	DisplayFavoriteFile();
-	system("pause");
-}
-
-// Display Frequent folder or file
-void Application::DisplayFrequent() {
-	DisplayFrequentFolder();
-	DisplayFrequentFile();
-	system("pause");
 }
 
 // 파일시스템으로부터 구조 읽어들이기

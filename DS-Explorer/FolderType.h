@@ -480,11 +480,6 @@ public:
 
 		return jsObj;
 	};
-	
-	/**
-	*	@brief	Child Folder/File을 JSArgs로 변환한다.
-	*	@return	JSArgs가 리턴됨. 실패할 경우 NULL 반환.
-	*/
 };
 
 #endif //_FOLDERTYPE_H

@@ -157,7 +157,12 @@ public:
 		global["DeleteFolder"] = BindJSCallback(&Application::DeleteFolder);
 		global["RenameFolder"] = BindJSCallback(&Application::RenameFolder);
 		global["OpenFolder"] = BindJSCallback(&Application::OpenFolder);
+		global["MoveToParentFolder"] = BindJSCallback(&Application::MoveToParentFolder);
+
 		global["NewFile"] = BindJSCallback(&Application::NewFile);
+		global["DeleteFileA"] = BindJSCallback(&Application::DeleteFileA);
+		global["RenameFile"] = BindJSCallback(&Application::RenameFile);
+		global["OpenFile"] = BindJSCallback(&Application::OpenFile);
 
 		ReadDataFromSystem();
 	}
@@ -197,38 +202,11 @@ public:
 	void SetAsFavoriteFolder();
 
 	/**
-	*	@brief	최근 열어본 폴더를 출력한다.
-	*	@post	폴더 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayRecentFolder();
-
-	/**
-	*	@brief	좋아하는 폴더를 출력한다.
-	*	@post	폴더 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayFavoriteFolder();
-
-	/**
-	*	@brief	자주 사용했던 폴더를 출력한다.
-	*	@post	폴더 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayFrequentFolder();
-
-	/**
-	*	@brief	루트 폴더의 정보와 서브 폴더, 파일의 정보를 출력한다.
-	*	@post	정보가 출력됨.
-	*/
-	void DisplayProperty();
-
-	/**
 	*	@brief	상위 폴더로 이동함.
 	*	@pre	상위 폴더가 있어야 됨.
 	*	@post	상위 폴더로 이동함, 루트 폴더면 이동하지 않는다.
 	*/
-	void MoveToParentFolder();
+	void MoveToParentFolder(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	하위의 서브폴더 위치 값을 모두 갱신해준다.
@@ -286,21 +264,21 @@ public:
 	*	@pre	파일명이 필요함.
 	*	@post	파일이 삭제됨.
 	*/
-	void DeleteFileA();
+	void DeleteFileA(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	파일 속성을 변경한다.
 	*	@pre	파일이 존재해야 됨.
 	*	@post	파일이 변경됨.
 	*/
-	void RenameFile();
+	void RenameFile(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	파일을 연다.
 	*	@pre	파일이 존재해야 됨.
 	*	@post	파일을 수정할 수 있다.
 	*/
-	void OpenFile();
+	void OpenFile(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	좋아하는 파일로 등록한다.
@@ -358,48 +336,6 @@ public:
 	*	@param	w:	Search string
 	*/
 	void RecursiveSearch(FolderType* f, std::string w);
-
-	/**
-	*	@brief	최근 열어본 파일 목록을 출력한다.
-	*	@post	파일 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayRecentFile();
-
-	/**
-	*	@brief	좋아하는 파일을 출력한다.
-	*	@post	파일 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayFavoriteFile();
-
-	/**
-	*	@brief	자주 사용했던 파일을 출력한다.
-	*	@post	파일 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayFrequentFile();
-
-	/**
-	*	@brief	최근에 열어본 폴더 및 파일을 출력한다.
-	*	@post	폴더 및 파일 정보를 받아옴.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayRecent();
-
-	/**
-	*	@brief	좋아하는 폴더 및 파일을 출력한다.
-	*	@pre	좋아하는 폴더 및 파일 목록이 있어야 함.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayFavorite();
-
-	/**
-	*	@brief	자주 사용했던 폴더 및 파일을 출력한다.
-	*	@pre	자주 사용했던 폴더 및 파일 목록이 있어야 함.
-	*	@post	목록이 차례대로 출력된다.
-	*/
-	void DisplayFrequent();
 
 	/**
 	*	@brief	root 폴더로부터 파일 시스템 구조를 불러온다.

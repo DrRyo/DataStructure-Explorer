@@ -1,33 +1,9 @@
 var rfObj, fObj;
 
-var menu = [{
-    name: 'Folder',
-    title: 'Folder Menu',
-    subMenu: [{
-        name: 'Add New',
-        title: 'It will add folder',
-        fun: function () {
-            alert('It will add folder')
-        }
-    }, {
-        name: 'Replace',
-        title: 'It will replace folder',
-        fun: function() {
-            alert('It will replace folder')
-        }
-    }]
-}]
-
-$('body').contextMenu(menu);
-
 $(function () {
     $.contextMenu({
         selector: 'span.navbar-toggler', 
         trigger: 'left',
-        callback: function(key, options) {
-            var m = "clicked: " + key;
-            window.console && console.log(m) || alert(m); 
-        },
         items: {
             folder: {
                 name: "Add Folder",
@@ -85,6 +61,8 @@ $(function () {
             }
         }
     });
+
+    UpdateClickEvent();
 });
 
 function UpdateRootFolderObject(rfObj) {
@@ -98,7 +76,7 @@ function UpdateCurrentFolderObject(fObj) {
     UpdateUI(this, fObj);
 }
 
-var $parent = $(`<tr>
+var $parent = $(`<tr data-type="parent">
     <th scope="row"></th>
     <td>..</td>
     <td></td>
@@ -106,11 +84,11 @@ var $parent = $(`<tr>
     <td></td>
 </tr>`);
 
-var $folder = $(`<tr>
+var $folder = $(`<tr data-type="folder">
     <th scope="row"><i class="fa fa-folder-open"></i></th>
 </tr>`);
 
-var $file = $(`<tr>
+var $file = $(`<tr data-type="file">
     <th scope="row"><i class="fa fa-file-o"></i></th>
 </tr>`);
 
@@ -123,12 +101,26 @@ function UpdateUI(obj, fObj) {
 
         $('tbody').append(
             child.append($(`
-                <td>` + val.name + `</td>
+                <td class="name">` + val.name + `</td>
                 <td>` + val.accessDate + `</td>
                 <td>` + val.modifyDate + `</td>
                 <td>` + val.createDate + `</td>
-                <td class="button-td"><button type="button" class="btn btn-success btn-sm"><i class="fa fa-edit"></i></button></td>
-                <td class="button-td"><button type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button></td>
+                <td class="button-td">
+                    <button type="button"
+                        class="btn btn-success btn-sm btn-edit"
+                        data-location="` + val.location + `"
+                        data-name="` + val.name + `">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </td>
+                <td class="button-td">
+                    <button type="button"
+                        class="btn btn-danger btn-sm btn-delete"
+                        data-location="` + val.location + `"
+                        data-name="` + val.name + `">
+                        <i class="fa fa-trash-o"></i>
+                    </button>
+                </td>
             `).clone())
         );
     });
@@ -138,13 +130,124 @@ function UpdateUI(obj, fObj) {
         
         $('tbody').append(
             child.append($(`
-                <td>` + val.name + `.` + val.extension + `</td>
+                <td class="name">` + val.name + `.` + val.extension + `</td>
                 <td>` + val.accessDate + `</td>
                 <td>` + val.modifyDate + `</td>
                 <td>` + val.createDate + `</td>
-                <td class="button-td"><button type="button" class="btn btn-success btn-sm"><i class="fa fa-edit"></i></button></td>
-                <td class="button-td"><button type="button" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button></td>                
+                <td class="button-td">
+                    <button type="button"
+                        class="btn btn-success btn-sm btn-edit"
+                        data-location="` + val.location + `"
+                        data-name="` + val.name + `"
+                        data-extension="` + val.extension + `">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </td>
+                <td class="button-td">
+                    <button type="button"
+                        class="btn btn-danger btn-sm btn-delete"
+                        data-location="` + val.location + `"
+                        data-name="` + val.name + `"
+                        data-extension="` + val.extension + `">
+                        <i class="fa fa-trash-o"></i>
+                    </button>
+                </td>
             `).clone())
         );
+    });
+}
+
+function UpdateClickEvent() {
+    UpdateDoubleClickEvent();
+    UpdateEditEvent();
+    UpdateDeleteEvent();
+}
+
+function UpdateDoubleClickEvent() {
+    $('tr').off();
+    $('tr').click(function() {
+        if ($(this).find('th').attr("clicked") === undefined
+        || $(this).find('th').attr("clicked") === "") {
+            $(this).find('th').attr("clicked", "true");
+            console.log("clicked first!");
+        } else {
+            $(this).find('th').attr("clicked", "");
+            console.log("clicked second!");
+
+            var type = $(this).data('type');
+
+            if (type === "folder") {
+                var name = $(this).find('td.name').text();
+                console.log(name);
+                OpenFolder(name);
+            } else if (type === "file") {
+                var arr = $(this).find('td.name').text().split('.');
+                console.log(arr);
+                var extension = arr.pop();
+                var name = arr.join('.');
+                OpenFile(name, extension);
+            } else {
+                // parent
+                MoveToParentFolder();
+            }
+        }
+    });
+}
+
+function UpdateEditEvent() {
+    $('button.btn-edit').off();
+    $('button.btn-edit').click(function() {
+        var name = $(this).data("name");
+        var extension = $(this).data("extension");
+        var location = $(this).data("location");
+
+        if (extension === "") {
+            $('#inputModal').on('show.bs.modal', function(e) {
+                var modal = $(this);
+                modal.find('.modal-title').text('Rename Folder "' + name + '" to ...');
+                modal.find('input').val('');
+            });
+
+            $('#inputModal').on('shown.bs.modal', function(e) {
+                var modal = $(this);
+                modal.find('input').trigger('focus');
+            });
+
+            $('#inputModal').on('hide.bs.modal', function(e) {
+                var modal = $(this);
+                if (modal.find('input').val().length !== 0) {
+                    RenameFolder(modal.find('input').val());
+                }
+            });
+
+            $('#inputModal').modal('show');
+        } else {
+
+        }
+    });
+}
+
+function UpdateDeleteEvent() {
+    $('button.btn-delete').off();
+    $('button.btn-delete').click(function() {
+        $('#inputModal').on('show.bs.modal', function(e) {
+            var modal = $(this);
+            modal.find('.modal-title').text('New Folder');
+            modal.find('input').val('');
+        });
+
+        $('#inputModal').on('shown.bs.modal', function(e) {
+            var modal = $(this);
+            modal.find('input').trigger('focus');
+        });
+
+        $('#inputModal').on('hide.bs.modal', function(e) {
+            var modal = $(this);
+            if (modal.find('input').val().length !== 0) {
+                DeleteFolder(modal.find('input').val());
+            }
+        });
+
+        $('#inputModal').modal('show');
     });
 }
