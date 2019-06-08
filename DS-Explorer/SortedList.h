@@ -30,7 +30,15 @@ public:
 	*/
 	~SortedList() {
 		if (m_Length)
+		{
+			for (int i = 0; i < m_Length; i++)
+			{
+				if (m_Array[i])
+					delete m_Array[i];
+			}
+
 			delete[] m_Array;
+		}
 	}
 
 	/**
