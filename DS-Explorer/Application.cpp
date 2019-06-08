@@ -1,224 +1,11 @@
 ﻿#include "Application.h"
 
-// 프로그램 실행
-void Application::Run()
-{
-	m_Command = -1;
-	bool cFlag = false;
-
-	while (1) {
-		if (m_Command == -1) {
-			system("cls");
-			DisplayProperty();
-			m_Command = GetFolderCommand();
-		} else if (!cFlag) {
-			switch (m_Command) {
-			case 1:		// 폴더 및 파일 전체 검색
-				Search();
-				break;
-			case 2:		// 최근 열어본 폴더 및 파일 출력
-				DisplayRecent();
-				break;
-			case 3:		// 좋아하는 폴더 및 파일 출력
-				DisplayFavorite();
-				break;
-			case 4:		// 자주 사용한 폴더 및 파일 출력
-				DisplayFrequent();
-				break;
-			case 5:		// 시스템에서 폴더, 파일 구조 읽어들이기
-				ReadDataFromSystem();
-				break;
-			case -1:	// 다음 명령어
-				break;
-			case 0:		// 탐색기 종료
-				return;
-			default:
-				cout << "\tIllegal selection...\n";
-				system("pause");
-				break;
-			}
-
-			// Execute command successfully.
-			m_Command = -999;
-			cFlag = true;
-		}
-
-		if (m_Command == -1) {
-			system("cls");
-			DisplayProperty();
-			m_Command = GetFileCommand();
-		} else if (!cFlag) {
-			// if m_Command is not next command, execute folder command
-			switch (m_Command) {
-			case 1:		// 새 폴더 생성
-				NewFolder();
-				break;
-			case 2:		// 서브 폴더 삭제
-				DeleteFolder();
-				break;
-			case 3:		// 서브 폴더명 변경
-				RenameFolder();
-				break;
-			case 4:		// 서브 폴더 열기
-				OpenFolder();
-				break;
-			case 5:		// 자주가는 폴더 등록
-				SetAsFavoriteFolder();
-				break;
-			case 6:		// 현재 폴더 속성
-				DisplayProperty();
-				system("pause"); // 처음에 DisplayProperty()로 정보를 보여주기 때문에, 따로 보여주는건 일시정지를 해준다.
-				break;
-			case 7:		// 상위 폴더로 이동
-				MoveToParentFolder();
-				break;
-			case 8:		// 현재 폴더 복사
-				CopyFolder();
-				break;
-			case 9:		// 현재 폴더 잘라내기
-				CutFolder();
-				break;
-			case 10:	// 현재 폴더 붙여넣기
-				PasteFolder();
-				break;
-			case -1:	// 다음 명령어
-				break;
-			case 0:		// 탐색기 종료
-				return;
-			default:
-				cout << "\tIllegal selection...\n";
-				system("pause");
-				break;
-			}
-
-			// Execute command successfully.
-			m_Command = -999;
-			cFlag = true;
-		}
-
-		if (m_Command == -1) {
-			system("cls");
-			DisplayProperty();
-			m_Command = GetExplorerCommand();
-		} else if (!cFlag) {
-			switch (m_Command) {
-			case 1:		// 파일 생성하기 (텍스트)
-				NewFile();
-				break;
-			case 2:		// 파일 삭제하기 (이름)
-				DeleteFileA();
-				break;
-			case 3:		// 파일 수정하기 (이름)
-				RenameFile();
-				break;
-			case 4:		// 파일 열기
-				OpenFile();
-				break;
-			case 5:		// 자주가는 폴더 등록
-				SetAsFavoriteFile();
-				break;
-			case 6:		// 선택 파일 복사
-				CopyFileA();
-				break;
-			case 7:		// 선택 파일 잘라내기
-				CutFile();
-				break;
-			case 8:		// 선택 파일 붙여넣기
-				PasteFile();
-				break;
-			case -1:	// 다음 명령어
-				break;
-			case 0:		// 탐색기 종료
-				return;
-			default:
-				cout << "\tIllegal selection...\n";
-				system("pause");
-				break;
-			}
-
-			// Execute command successfully.
-			m_Command = -999;
-			cFlag = true;
-		}
-
-		if (m_Command == -999) m_Command = -1;
-		if (cFlag) cFlag = false;
-	}
-}
-
-// 화면에 명령어를 보여주고 키보드 입력을 받음.
-int Application::GetFolderCommand() {
-	int command;
-	cout << endl << endl;
-	cout << "\t-- ID -- Command ----- " << endl;
-	cout << "\t   1  : Create folder" << endl;
-	cout << "\t   2  : Delete folder" << endl;
-	cout << "\t   3  : Rename folder" << endl;
-	cout << "\t   4  : Open folder" << endl;
-	cout << "\t   5  : Set as favorite" << endl;
-	cout << "\t   6  : Property of folder" << endl;
-	cout << "\t   7  : Move to parent folder" << endl;
-	cout << "\t   8  : Copy this folder" << endl;
-	cout << "\t   9  : Cut this folder" << endl;
-	cout << "\t  10  : Paste folder to this folder" << endl;
-	cout << "\t  -1  : Next commands" << endl;
-	cout << "\t   0  : Quit" << endl;
-
-	cout << endl << "\t Choose a Command--> ";
-	cin >> command;
-	cout << endl;
-
-	return command;
-}
-
-// 화면에 명령어를 보여주고 키보드 입력을 받음.
-int Application::GetFileCommand() {
-	int command;
-	cout << endl << endl;
-	cout << "\t-- ID -- Command ----- " << endl;
-	cout << "\t   1  : Create new file" << endl;
-	cout << "\t   2  : Delete file" << endl;
-	cout << "\t   3  : Rename file" << endl;
-	cout << "\t   4  : Open file" << endl;
-	cout << "\t   5  : Set as favorite" << endl;
-	cout << "\t   6  : Copy file" << endl;
-	cout << "\t   7  : Cut file" << endl;
-	cout << "\t   8  : Paste file to this folder" << endl;
-	cout << "\t  -1  : Next commands" << endl;
-	cout << "\t   0  : Quit" << endl;
-
-	cout << endl << "\t Choose a Command--> ";
-	cin >> command;
-	cout << endl;
-
-	return command;
-}
-
-// 화면에 명령어를 보여주고 키보드 입력을 받음.
-int Application::GetExplorerCommand() {
-	int command;
-	cout << endl << endl;
-	cout << "\t-- ID -- Command ----- " << endl;
-	cout << "\t   1  : Search" << endl;
-	cout << "\t   2  : Recent" << endl;
-	cout << "\t   3  : Favorite" << endl;
-	cout << "\t   4  : Frequent" << endl;
-	cout << "\t   5  : Read structure from system" << endl;
-	cout << "\t  -1  : Next commands" << endl;
-	cout << "\t   0  : Quit" << endl;
-
-	cout << endl << "\t Choose a Command--> ";
-	cin >> command;
-	cout << endl;
-
-	return command;
-}
-
 // 새로운 폴더를 생성함.
-void Application::NewFolder() {
+void Application::NewFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
-	temp.SetPropertyFromKB(location);
+	temp.SetLocation(location);
+	temp.SetName(std::string(((String)args[0]).utf8().data()));
 	temp.SetParent(m_CurFolder);
 
 	if (m_CurFolder->GetSubFolderList()->Add(temp)) {
@@ -226,15 +13,17 @@ void Application::NewFolder() {
 		m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
 
 		// Create new folder in Windows
-		if (!Windows::CreateDirectoryWithPath(location + temp.GetName())) {
-			cout << "\tFail to create directory in Windows!" << endl;
-			system("pause");
+		if (Windows::CreateDirectoryWithPath(location + temp.GetName())) {
+			if (UpdateCurrentFolderObject.IsValid()) {
+				JSObject jso = m_CurFolder->to_jsobject();
+				UpdateCurrentFolderObject(jso, { 0 });
+			}
 		}
 	}
 }
 
 // 폴더 삭제
-void Application::DeleteFolder() {
+void Application::DeleteFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
 	temp.SetPropertyFromKB(location);
@@ -252,7 +41,7 @@ void Application::DeleteFolder() {
 }
 
 // Rename folder
-void Application::RenameFolder() {
+void Application::RenameFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	cout << "\t바꾸고 싶은 폴더 이름을 입력해주세요." << endl;
 	FolderType* temp = new FolderType();
@@ -296,7 +85,7 @@ void Application::RenameFolder() {
 }
 
 // 서브 폴더 열기
-void Application::OpenFolder() {
+void Application::OpenFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FolderType temp;
 	temp.SetPropertyFromKB(location);
@@ -562,10 +351,12 @@ void Application::PasteFolder() {
 }
 
 // Add new file
-void Application::NewFile() {
+void Application::NewFile(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType temp;
-	temp.SetPropertyFromKB(location);
+	temp.SetLocation(location);
+	temp.SetName(std::string(((String)args[0]).utf8().data()));
+	temp.SetExtension(std::string(((String)args[1]).utf8().data()));
 	temp.SetParent(m_CurFolder);
 
 	if (m_CurFolder->GetFileList()->Add(temp)) {
@@ -573,9 +364,11 @@ void Application::NewFile() {
 		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
 		
 		// Create new file in Windows
-		if (!Windows::CreateFileWithPath(location, temp.GetName(), temp.GetExtension())) {
-			cout << "\tFail to create file in Windows!" << endl;
-			system("pause");
+		if (Windows::CreateFileWithPath(location, temp.GetName(), temp.GetExtension())) {
+			if (UpdateCurrentFolderObject.IsValid()) {
+				JSObject jso = m_CurFolder->to_jsobject();
+				UpdateCurrentFolderObject(jso, { 0 });
+			}
 		}
 	}
 }
@@ -870,8 +663,7 @@ void Application::DisplayFrequent() {
 
 // 파일시스템으로부터 구조 읽어들이기
 void Application::ReadDataFromSystem() {
-	if (!Windows::ReadStructureFromSystem(&m_RootFolder)) {
-		cout << "\tRead Fail!" << endl;
-		system("pause");
+	if (Windows::ReadStructureFromSystem(&m_RootFolder)) {
+		UpdateCurrentFolderObject(m_RootFolder.to_jsobject(), { 0 });
 	}
 }

@@ -14,7 +14,7 @@
 *				- 한글사용을 위해서는 Doxywizard에서 아래와 같이 설정할 것.<br>
 *				Expert 탭 -> Input (Topics 에서 선택) -> INPUT_ENCODING 을 "UTF-8" 로 설정.
 *
-*	@date		2019-04-18
+*	@date		2019-06-08
 *	@author		전자공학과 2014103991 우주현
 */
 
@@ -24,9 +24,39 @@
 *	program main function for data structures course.
 */
 int main() {
-	// Create app that has "root" folder name.
-	Application app("root", ".\\");
-	app.Run();
+	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+
+	///
+	/// Create our main App instance.
+	///
+	auto app = u::App::Create();
+
+	///
+	/// Create our Window using default window flags.
+	///
+	auto window = u::Window::Create(app->main_monitor(), 1600, 900, false, u::kWindowFlags_Titled);
+
+	///
+	/// Set our window title.
+	///
+	window->SetTitle("DS Explorer");
+
+	///
+	/// Bind our App's main window.
+	///
+	/// @note This MUST be done before creating any overlays or calling App::Run
+	///
+	app->set_window(window);
+
+	///
+	/// Create our MyApp instance (creates overlays and handles all logic).
+	///
+	Application explorer(window, "root", ".\\");
+
+	///
+	/// Run our main loop.
+	///
+	app->Run();
 
 	return 0;
 }

@@ -6,6 +6,13 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <Windows.h>
+
+#include <AppCore/App.h>
+#include <AppCore/Window.h>
+#include <AppCore/Overlay.h>
+#include <AppCore/JSHelpers.h>
+#include <Ultralight/platform/FileSystem.h>
 
 #include "SortedList.h"
 #include "Queue.h"
@@ -15,12 +22,35 @@
 
 #include "Windows.h"
 
-using namespace std;
+using namespace ultralight;
+namespace fs = std::filesystem;
+
+class UExport FileSystem {
+public:
+	virtual ~FileSystem();
+
+	virtual bool FileExists(const String16& path) = 0;
+
+	virtual bool GetFileSize(FileHandle handle,
+		int64_t& result) = 0;
+
+	virtual bool GetFileMimeType(const String16& path,
+		String16& result) = 0;
+
+	virtual FileHandle OpenFile(const String16& path,
+		bool open_for_writing) = 0;
+
+	virtual void CloseFile(FileHandle& handle) = 0;
+
+	virtual int64_t ReadFromFile(FileHandle handle,
+		char* data,
+		int64_t length) = 0;
+};
 
 /**
 *	application class for folder management simply.
 */
-class Application {
+class Application : public LoadListener {
 private:
 	FolderType m_RootFolder;
 	FolderType *m_CurFolder;
@@ -35,12 +65,17 @@ private:
 	Frequent<FolderType> m_FrequentFolder;
 	Frequent<FileType> m_FrequentFile;
 	int m_Command;
-	
+
+protected:
+	RefPtr<Overlay> overlay_;
+	JSFunction UpdateCurrentFolderObject;
+	JSFunction UpdateRootFolderObject;
+
 public:
 	/**
 	*	default constructor with folder name.
 	*/
-	Application(string folderName = "root", string folderLocation = ".\\") {
+	Application(Ref<Window> win, std::string folderName = "root", std::string folderLocation = ".\\") {
 		m_Command = 0;
 		
 		// main에서 root folder를 application class를 정의하고 제어를 root folder의 Run함수로 넘긴다
@@ -58,74 +93,100 @@ public:
 		m_RecentFolder.EnQueue(*m_CurFolder);
 
 		Windows::CreateDirectoryWithPath(".\\root");
+		ReadDataFromSystem();
+
+		///
+		/// Create our Overlay, use the same dimensions as our Window.
+		///
+		overlay_ = Overlay::Create(win, win->width(), win->height(), 0, 0);
+
+		///
+		/// Register our DSExplorer instance as a load listener so we can handle the
+		/// page's DOMReady event below.
+		///
+		overlay_->view()->set_load_listener(this);
+
+		///
+		/// Load a std::string of HTML (we're using a C++11 Raw String Literal)
+		///
+		std::string path = "";
+		path.append("file:///");
+		path.append(fs::current_path().u8string().c_str());
+		path.append("\\view\\main.html");
+
+		overlay_->view()->LoadURL(path.c_str());
 	}
 
 	/**
 	*	destructor.
 	*/
-	~Application() {
+	virtual ~Application() {
 		delete m_CopyFolder;
 		delete m_CopyFile;
 		delete m_CutFolder;
 		delete m_CutFile;
 	}
 
-	/**
-	*	@brief	어플리케이션 실행
-	*/
-	void Run();
+	///
+	/// Inherited from LoadListener, called when the page has finished parsing
+	/// the document and is ready to execute scripts.
+	///
+	/// We perform all our JavaScript initialization here.
+	///
+	virtual void OnDOMReady(View* caller) override {
+		///
+		/// Set our View's JSContext as the one to use in subsequent JSHelper calls
+		///
+		SetJSContext(caller->js_context());
 
-	/**
-	*	@brief	실행에 필요한 명령을 받아옴. (폴더)
-	*	@pre	명령어 목록을 출력한다.
-	*	@post	명령을 입력받는다.
-	*	@return	해당 명령어 숫자 리턴
-	*/
-	int GetFolderCommand();
+		///
+		/// Get the global object (this would be the "window" object in JS)
+		///
+		JSObject global = JSGlobalObject();
 
-	/**
-	*	@brief	실행에 필요한 명령을 받아옴. (파일)
-	*	@pre	명령어 목록을 출력한다.
-	*	@post	명령을 입력받는다.
-	*	@return	해당 명령어 숫자 리턴
-	*/
-	int GetFileCommand();
+		///
+		///	Bind JS Function to Cpp Function
+		///
+		UpdateCurrentFolderObject = global["UpdateCurrentFolderObject"];
+		UpdateRootFolderObject = global["UpdateRootFolderObject"];
 
-	/**
-	*	@brief	실행에 필요한 명령을 받아옴. (탐색기)
-	*	@pre	명령어 목록을 출력한다.
-	*	@post	명령을 입력받는다.
-	*	@return	해당 명령어 숫자 리턴
-	*/
-	int GetExplorerCommand();
+		///
+		/// Bind Cpp Function to JS Function
+		///
+		global["NewFolder"] = BindJSCallback(&Application::NewFolder);
+		global["DeleteFolder"] = BindJSCallback(&Application::DeleteFolder);
+		global["RenameFolder"] = BindJSCallback(&Application::RenameFolder);
+		global["OpenFolder"] = BindJSCallback(&Application::OpenFolder);
+		global["NewFile"] = BindJSCallback(&Application::NewFile);
+	}
 
 	/**
 	*	@brief	새로운 폴더를 생성한다.
 	*	@pre	폴더 정보가 필요함.
 	*	@post	새로운 폴더가 생성됨.
 	*/
-	void NewFolder();
+	void NewFolder(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	폴더명을 기준으로 삭제한다.
 	*	@pre	폴더명이 필요함.
 	*	@post	폴더가 삭제됨.
 	*/
-	void DeleteFolder();
+	void DeleteFolder(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	폴더명을 변경한다.
 	*	@pre	폴더명이 필요함.
 	*	@post	폴더명이 변경됨.
 	*/
-	void RenameFolder();
+	void RenameFolder(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	서브 폴더를 연다.
 	*	@pre	서브 폴더가 존재해야됨.
 	*	@post	서브 폴더로 이동.
 	*/
-	void OpenFolder();
+	void OpenFolder(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	좋아하는 폴더로 등록한다.
@@ -174,7 +235,7 @@ public:
 	*	@param	list:		FolderType 변수
 	*	@param	location:	갱신할 위치 문자열
 	*/
-	void RecursiveUpdateLocation(FolderType *list, string location);
+	void RecursiveUpdateLocation(FolderType *list, std::string location);
 
 	/**
 	*	@brief	폴더를 복사함.
@@ -216,7 +277,7 @@ public:
 	*	@pre	파일 정보가 필요함.
 	*	@post	새로운 파일이 생성됨.
 	*/
-	void NewFile();
+	void NewFile(const JSObject& thisObject, const JSArgs& args);
 
 	/**
 	*	@brief	파일명을 기준으로 삭제한다.
@@ -294,7 +355,7 @@ public:
 	*	@param	f:	FolderType
 	*	@param	w:	Search string
 	*/
-	void RecursiveSearch(FolderType* f, string w);
+	void RecursiveSearch(FolderType* f, std::string w);
 
 	/**
 	*	@brief	최근 열어본 파일 목록을 출력한다.
