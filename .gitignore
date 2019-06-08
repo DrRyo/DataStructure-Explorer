@@ -387,9 +387,6 @@ html/
 Doxyfile
 *.zip
 
-*.vcxproj
-*.vcxproj.filters
-
 DS-Explorer/x64/
 DS-Explorer/x86/
 x64/Debug/*.dll
