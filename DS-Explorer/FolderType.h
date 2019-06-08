@@ -436,46 +436,45 @@ public:
 	*	@return	JSObject가 리턴됨. 실패할 경우 NULL 반환.
 	*/
 	u::JSObject to_jsobject() {
-		u::JSObject *jsObj = new u::JSObject;
-		u::JSArray *jsFolder = new u::JSArray;
-		u::JSArray *jsFile = new u::JSArray;
+		u::JSObject jsObj;
+		u::JSArray jsFolder;
+		u::JSArray jsFile;
 
-		(*jsObj)["name"] = m_Name.c_str();
-		(*jsObj)["location"] = m_Location.c_str();
-		(*jsObj)["createDate"] = m_CreateDate.c_str();
-		(*jsObj)["modifyDate"] = m_ModifyDate.c_str();
-		(*jsObj)["accessDate"] = m_AccessDate.c_str();
+		jsObj["name"] = m_Name.c_str();
+		jsObj["location"] = m_Location.c_str();
+		jsObj["createDate"] = m_CreateDate.c_str();
+		jsObj["modifyDate"] = m_ModifyDate.c_str();
+		jsObj["accessDate"] = m_AccessDate.c_str();
 
 		if (m_Parent != NULL) {
-			(*jsObj)["parent"] = u::JSValue(std::string(
+			jsObj["parent"] = u::JSValue(std::string(
 				m_Parent->GetName() + "||" + m_Parent->GetLocation()
 			).c_str());
 		}
 
 		for (int i = 0; i < m_folderNumber; i++) {
-			jsFolder->push(u::JSValue(m_folderList->GetArray()[i].to_jsobject()));
+			jsFolder.push(u::JSValue(m_folderList->GetArray()[i].to_jsobject()));
 		}
 
-		(*jsObj)["folderList"] = u::JSValue(jsFolder);
+		jsObj["folderList"] = u::JSValue(jsFolder);
 		
-		u::JSObject *obj;
+		u::JSObject obj;
 
 		for (auto i = 0; i < m_fileNumber; i++) {
-			obj = new u::JSObject;
 
-			(*obj)["name"] = m_fileList->GetArray()[i].GetName().c_str();
-			(*obj)["extension"] = m_fileList->GetArray()[i].GetExtension().c_str();
-			(*obj)["location"] = m_fileList->GetArray()[i].GetLocation().c_str();
-			(*obj)["createDate"] = m_fileList->GetArray()[i].GetCreateDate().c_str();
-			(*obj)["modifyDate"] = m_fileList->GetArray()[i].GetModifyDate().c_str();
-			(*obj)["accessDate"] = m_fileList->GetArray()[i].GetAccessDate().c_str();
+			obj["name"] = m_fileList->GetArray()[i].GetName().c_str();
+			obj["extension"] = m_fileList->GetArray()[i].GetExtension().c_str();
+			obj["location"] = m_fileList->GetArray()[i].GetLocation().c_str();
+			obj["createDate"] = m_fileList->GetArray()[i].GetCreateDate().c_str();
+			obj["modifyDate"] = m_fileList->GetArray()[i].GetModifyDate().c_str();
+			obj["accessDate"] = m_fileList->GetArray()[i].GetAccessDate().c_str();
 
-			jsFile->push(u::JSValue(*obj));
+			jsFile.push(u::JSValue(obj));
 		}
 
-		(*jsObj)["fileList"] = u::JSValue(jsFile);
+		jsObj["fileList"] = u::JSValue(jsFile);
 
-		return (*jsObj);
+		return jsObj;
 	};
 	
 	/**

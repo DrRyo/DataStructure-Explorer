@@ -93,7 +93,7 @@ public:
 		m_RecentFolder.EnQueue(*m_CurFolder);
 
 		Windows::CreateDirectoryWithPath(".\\root");
-		ReadDataFromSystem();
+		
 
 		///
 		/// Create our Overlay, use the same dimensions as our Window.
@@ -158,6 +158,8 @@ public:
 		global["RenameFolder"] = BindJSCallback(&Application::RenameFolder);
 		global["OpenFolder"] = BindJSCallback(&Application::OpenFolder);
 		global["NewFile"] = BindJSCallback(&Application::NewFile);
+
+		ReadDataFromSystem();
 	}
 
 	/**
