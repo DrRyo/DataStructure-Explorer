@@ -457,11 +457,9 @@ public:
 		}
 
 		jsObj["folderList"] = u::JSValue(jsFolder);
-		
-		u::JSObject obj;
 
 		for (auto i = 0; i < m_fileNumber; i++) {
-
+			u::JSObject obj;
 			obj["name"] = m_fileList->GetArray()[i].GetName().c_str();
 			obj["extension"] = m_fileList->GetArray()[i].GetExtension().c_str();
 			obj["location"] = m_fileList->GetArray()[i].GetLocation().c_str();

@@ -123,8 +123,7 @@ namespace Windows {
 					root->SetFolderNumber(root->GetFolderNumber() + 1);
 				}
 
-				int n = root->GetSubFolderList()->GetBinary(*d);
-				RecursiveReadStructure(&root->GetSubFolderList()->GetArray()[n], entry.path().u8string() + "\\");
+				RecursiveReadStructure(d, entry.path().u8string() + "\\");
 				delete d;
 			} else {
 				size_t l = entry.path().filename().u8string().find_last_of(".");
