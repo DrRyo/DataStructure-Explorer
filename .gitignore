@@ -390,7 +390,7 @@ Doxyfile
 
 DS-Explorer/x64/
 DS-Explorer/x86/
-#x64/Debug/*.dll
-#x64/Debug/*.pdb
-#x64/Release/*.dll
-#x64/Release/*.pdb
+x64/Debug/*.dll
+x64/Debug/*.pdb
+x64/Release/*.dll
+x64/Release/*.pdb
