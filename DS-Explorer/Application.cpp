@@ -321,7 +321,9 @@ void Application::RenameFile(const JSObject& thisObject, const JSArgs& args) {
 	temp->SetName(std::string(((String)args[0]).utf8().data()));
 	temp->SetExtension(std::string(((String)args[1]).utf8().data()));
 
-	if (m_CurFolder->GetFileList()->GetBinary(*temp) != -1) {
+	int n = m_CurFolder->GetFileList()->GetBinary(*temp);
+
+	if (n != -1) {
 		FileType *renew = new FileType();
 		renew->SetLocation(location);
 		renew->SetName(std::string(((String)args[2]).utf8().data()));
@@ -332,8 +334,9 @@ void Application::RenameFile(const JSObject& thisObject, const JSArgs& args) {
 			Windows::RenameFileWithPath(location, temp->GetName(), temp->GetExtension(),
 												renew->GetName(), renew->GetExtension());
 
-			temp->SetAccessDateToNow();
-			temp->SetName(renew->GetName());
+			m_CurFolder->GetFileList()->GetRef(n)->SetAccessDateToNow();
+			m_CurFolder->GetFileList()->GetRef(n)->SetName(renew->GetName());
+			m_CurFolder->GetFileList()->GetRef(n)->SetExtension(renew->GetExtension());
 		}
 	}
 

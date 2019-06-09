@@ -74,28 +74,28 @@ $(function () {
         name: "Rename",
         icon: "fa-edit",
         callback: function (key, opt) {
-
+          RenameCallbackEvent(this);
         }
       },
       delete: {
         name: "Delete",
         icon: "fa-trash",
         callback: function (key, opt) {
-
+          DeleteCallbackEvent(this);
         }
       },
       copy: {
         name: "Copy",
         icon: "fa-copy",
         callback: function (key, opt) {
-
+          CopyCallbackEvent(this);
         }
       },
       cut: {
         name: "Cut",
         icon: "fa-cut",
         callback: function (key, opt) {
-
+          CutCallbackEvent(this);
         }
       }
     }
@@ -113,22 +113,6 @@ function UpdateCurrentFolderObject(fObj) {
   fObj = this;
   UpdateUI(this);
 }
-
-var $parent = $(`<tr data-type="parent">
-    <th scope="row"></th>
-    <td>..</td>
-    <td></td>
-    <td></td>
-    <td></td>
-</tr>`);
-
-var $folder = $(`<tr data-type="folder">
-    <th scope="row"><i class="fa fa-folder-open"></i></th>
-</tr>`);
-
-var $file = $(`<tr data-type="file">
-    <th scope="row"><i class="fa fa-file-o"></i></th>
-</tr>`);
 
 function UpdateUI(obj) {
   $('table#table-explorer').DataTable().clear().destroy();
@@ -175,7 +159,9 @@ function UpdateUI(obj) {
       { data: "accessDate" },
       { data: "modifyDate" },
       { data: "createDate" },
-      { data: "type" }
+      { data: function (data, type, dataToSet) {
+        return data.type + "||" + data.name;
+      }}
     ],
     columnDefs: [
       {
@@ -202,8 +188,23 @@ function UpdateUI(obj) {
         orderable: false,
         searchable: false,
         render: function (data, type, full, meta) {
-          if (data !== 'parent') {
-            return `<div class="btn btn-secondary btn-sm btn-menu btn-folder btn-td">
+          var arr = data.split('||');
+          var type = arr.shift();
+
+          if (type === 'folder') {
+            extension = '';
+            name = arr.join('||');
+            console.log(name, extension);
+          } else if (type === 'file') {
+            nameArr = arr.join('||').split('.');
+            name = nameArr.shift();
+            extension = nameArr.join('.');
+            console.log(name, extension, nameArr);
+          }
+
+          if (type !== 'parent') {
+            return `<div class="btn btn-secondary btn-sm btn-menu btn-folder btn-td"
+              data-type="${type}" data-name="${name}" data-extension="${extension}">
                   <i class="fa fa-bars"></i>
                 </div>`;
           } else {
@@ -216,15 +217,10 @@ function UpdateUI(obj) {
       UpdateClickEvent();
     }
   });
-
-  UpdateClickEvent();
 }
 
 function UpdateClickEvent() {
   UpdateDoubleClickEvent();
-  UpdateEditEvent();
-  UpdateDeleteEvent();
-  UpdateContextMenu();
 }
 
 function UpdateDoubleClickEvent() {
@@ -263,75 +259,18 @@ function UpdateDoubleClickEvent() {
   });
 }
 
-function UpdateEditEvent() {
-  $('button.btn-edit').off();
-  $('button.btn-edit').click(function () {
-    var name = $(this).data("name");
-    var extension = $(this).data("extension");
-    var location = $(this).data("location");
+function RenameCallbackEvent(_this) {
+  var type = $(_this).data("type");
+  var name = $(_this).data("name");
+  var extension = $(_this).data("extension");
+  console.log(type, name, extension);
 
-    if (extension === undefined ||
-      extension === "") {
-      $('#inputModal').on('show.bs.modal', function (e) {
-        var modal = $(this);
-        modal.find('.modal-title').text('Rename Folder "' + name + '" to ...');
-        modal.find('input').val('');
-        modal.find('div.modal-footer > button').text('Edit');
-      });
-
-      $('#inputModal').on('shown.bs.modal', function (e) {
-        var modal = $(this);
-        modal.find('input').trigger('focus');
-      });
-
-      $('#inputModal').on('hide.bs.modal', function (e) {
-        var modal = $(this);
-        if (modal.find('input').val().length !== 0) {
-          log("Change `" + name + "` to `"
-            + modal.find('input').val() + "`");
-          RenameFolder(name, modal.find('input').val());
-        }
-      });
-
-      $('#inputModal').modal('show');
-    } else {
-      $('#inputModal').on('show.bs.modal', function (e) {
-        var modal = $(this);
-        modal.find('.modal-title').text('Rename File "'
-          + name + "." + extension + '" to ...');
-        modal.find('input').val('');
-        modal.find('div.modal-footer > button').text('Edit');
-      });
-
-      $('#inputModal').on('shown.bs.modal', function (e) {
-        var modal = $(this);
-        modal.find('input').trigger('focus');
-      });
-
-      $('#inputModal').on('hide.bs.modal', function (e) {
-        var arr = $(this).find('input').val().split('.');
-        var Textension = arr.pop();
-        var Tname = arr.join('.');
-
-        if (modal.find('input').val().length !== 0) {
-          log("Change `" + name + "." + extension + "` to `"
-            + Tname + "." + Textension + "`");
-          RenameFile(name, extension, Tname, Textension);
-        }
-      });
-
-      $('#inputModal').modal('show');
-    }
-  });
-}
-
-function UpdateDeleteEvent() {
-  $('button.btn-delete').off();
-  $('button.btn-delete').click(function () {
+  if (type === "folder") {
     $('#inputModal').on('show.bs.modal', function (e) {
       var modal = $(this);
-      modal.find('.modal-title').text('New Folder');
+      modal.find('.modal-title').text('Rename Folder "' + name + '" to ...');
       modal.find('input').val('');
+      modal.find('div.modal-footer > button').text('Edit');
     });
 
     $('#inputModal').on('shown.bs.modal', function (e) {
@@ -342,16 +281,58 @@ function UpdateDeleteEvent() {
     $('#inputModal').on('hide.bs.modal', function (e) {
       var modal = $(this);
       if (modal.find('input').val().length !== 0) {
-        DeleteFolder(modal.find('input').val());
+        log("Change `" + name + "` to `"
+          + modal.find('input').val() + "`");
+        RenameFolder(name, modal.find('input').val());
       }
     });
 
     $('#inputModal').modal('show');
-  });
+  } else if (type === "file") {
+    $('#inputModal').on('show.bs.modal', function (e) {
+      var modal = $(this);
+      modal.find('.modal-title').text('Rename File "'
+        + name + "." + extension + '" to ...');
+      modal.find('input').val('');
+      modal.find('div.modal-footer > button').text('Edit');
+    });
+
+    $('#inputModal').on('shown.bs.modal', function (e) {
+      var modal = $(this);
+      modal.find('input').trigger('focus');
+    });
+
+    $('#inputModal').on('hide.bs.modal', function (e) {
+      var modal = $(this);
+      var arr = modal.find('input').val().split('.');
+      var Textension = arr.pop();
+      var Tname = arr.join('.');
+
+      if (Tname.length === 0) Tname = Textension, Textension = '';
+
+      console.log(name, extension, Tname, Textension);
+
+      if (modal.find('input').val().length !== 0) {
+        log("Change `" + name + "." + extension + "` to `"
+          + Tname + "." + Textension + "`");
+        RenameFile(name, extension, Tname, Textension);
+      }
+    });
+
+    $('#inputModal').modal('show');
+  }
 }
 
-function UpdateContextMenu() {
-  //$.contextMenu('update');
+function DeleteCallbackEvent(_this) {
+  var type = $(_this).data("type");
+  var name = $(_this).data("name");
+  var extension = $(_this).data("extension");
+  
+  if (type === "folder") {
+    DeleteFolder(name);
+  } else if (type === "file") {
+    DeleteFile(name, extension);
+  }
 }
 
 function log(msg, clr = false) {
