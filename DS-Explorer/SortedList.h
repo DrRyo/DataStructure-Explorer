@@ -139,7 +139,7 @@ public:
 	*	@param	data: new unspecified class data
 	*	@return	return 1 if this function works well, otherwise 0.
 	*/
-	int Add(T data);
+	int Add(T& data);
 
 	/**
 	*	@brief	찾고자 하는 이름을 포함한 모든 폴더를 검색한다.
@@ -166,7 +166,7 @@ public:
 	*	@param	data: 일부만 채워져있는 unspecified class.
 	*	@return 삭제에 성공했으면 1, 아니면 0을 리턴한다.
 	*/
-	int Delete(T data);
+	int Delete(T& data);
 
 	/**
 	*	@brief	사용자가 지정한 unspecified class에 해당하는 배열의 자리에 파라미터의 내용을 복사한다.
@@ -175,7 +175,7 @@ public:
 	*	@param	data: 모든 변수가 채워져있는 unspecified class.
 	*	@return	성공적으로 수정했으면 1, 아니면 0을 리턴한다.
 	*/
-	int Replace(T data);
+	int Replace(T& data);
 
 private:
 	T** m_Array;			///< list array.
@@ -190,7 +190,7 @@ void SortedList<T>::MakeEmpty() {
 
 // add a new data into list.
 template <class T>
-int SortedList<T>::Add(T inData) {
+int SortedList<T>::Add(T &inData) {
 	for (int i = 0; i < m_Length; i++) {
 		if (*(m_Array[i]) == inData) {
 			return 0;
@@ -254,7 +254,7 @@ int SortedList<T>::GetBinary(T& data) {
 		int mid = (first + last) / 2;
 		
 		if (*GetRef(mid) == data) {
-			data = *(m_Array[mid]);			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
+	//		data = *(m_Array[mid]);			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
 			return mid;
 		} else {
 			if (*GetRef(mid) > data) {
@@ -270,7 +270,7 @@ int SortedList<T>::GetBinary(T& data) {
 
 // Delete data based on folder name
 template <class T>
-int SortedList<T>::Delete(T data) {
+int SortedList<T>::Delete(T &data) {
 	int pos = GetBinary(data);
 
 	if (pos != -1) {							// id가 일치하는 item을 발견한다면(1)
@@ -288,7 +288,7 @@ int SortedList<T>::Delete(T data) {
 
 // Replace data based on folder name
 template <class T>
-int SortedList<T>::Replace(T data) {
+int SortedList<T>::Replace(T &data) {
 	int pos = GetBinary(data);
 
 	if (pos != -1) {			// 일치하는 아이템을 찾은 경우

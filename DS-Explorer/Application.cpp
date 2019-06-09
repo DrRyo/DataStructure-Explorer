@@ -108,9 +108,10 @@ void Application::OpenFolder(const JSObject& thisObject, const JSArgs& args) {
 	result.SetParent(m_CurFolder);
 
 	m_RecentFolder.EnQueue(result);
+	/*
 	m_FrequentFolder.AddKey(result);
 	m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(result)]++;
-
+	*/
 	m_CurFolder = &result;
 	m_CurFolder->SetAccessDateToNow();
 
