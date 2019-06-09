@@ -63,12 +63,15 @@ public:
 	}
 
 	/**
-	*	default copy constructor.
+	*	default value copy constructor.
 	*/
 	FolderType(const FolderType & folderType) {
 		operator=(folderType);
 	}
 
+	/**
+	*	default pointer copy constructor.
+	*/
 	FolderType(FolderType * folderType) {
 		operator=(folderType);
 	}
@@ -85,10 +88,13 @@ public:
 	}
 
 	/**
-	*	= operator
+	*	Value = operator
 	*/
 	FolderType& operator= (const FolderType& data);
 
+	/**
+	*	Pointer = operator
+	*/
 	FolderType& operator= (FolderType* data);
 
 	/**
@@ -459,6 +465,7 @@ public:
 		}
 
 		for (int i = 0; i < m_folderNumber; i++) {
+			//jsFolder.push(u::JSValue(m_folderList->GetRef(i)->to_jsobject()));
 			jsFolder.push(u::JSValue(m_folderList->GetRef(i)->to_jsobject()));
 		}
 

@@ -155,6 +155,8 @@ function UpdateUI(obj, fObj) {
             `).clone())
         );
     });
+
+    UpdateClickEvent();
 }
 
 function UpdateClickEvent() {

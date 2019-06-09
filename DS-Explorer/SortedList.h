@@ -112,10 +112,22 @@ public:
 		return m_Length;
 	}
 
+	/**
+	*	@brief	Get value of in current list.
+	*	@pre	none.
+	*	@post	none.
+	*	@return	Value of in current list.
+	*/
 	T GetValue(int index) const {
 		return *m_Array[index];
 	}
 
+	/**
+	*	@brief	Get reference (pointer) of in current list.
+	*	@pre	none.
+	*	@post	none.
+	*	@return	Reference (pointer) of in current list.
+	*/
 	T* GetRef(int index) const {
 		return m_Array[index];
 	}
@@ -241,11 +253,11 @@ int SortedList<T>::GetBinary(T& data) {
 	while (first <= last) {					// first가 last보다 작거나 같을 때만 실행한다.
 		int mid = (first + last) / 2;
 		
-		if (*(m_Array[mid]) == data) {
+		if (*GetRef(mid) == data) {
 			data = *(m_Array[mid]);			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
 			return mid;
 		} else {
-			if (*(m_Array[mid]) > data) {
+			if (*GetRef(mid) > data) {
 				last = mid - 1;				// data가 m_Array[mid]보다 작으면, 위치를 앞으로 설정해준다.
 			} else {
 				first = mid + 1;			// data가 m_Array[mid]보다 크면, 위치를 뒤로 설정해준다.
