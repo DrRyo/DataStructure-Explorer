@@ -42,7 +42,7 @@ public:
 				delete[] m_Array;
 
 			m_Length = data.GetLength();
-			m_Array = new T[m_Length];
+			m_Array = new T*[m_Length];
 
 			for (int i = 0; i < data.GetLength(); i++) {
 				this->m_Array[i] = data.GetArray()[i];
@@ -130,7 +130,7 @@ public:
 	*	@param	data: 일부만 채워져있는 unspecified class.
 	*	@return	찾으면 1, 찾지 못하면 0을 리턴한다.
 	*/
-	int Get(T& data);
+	int Get(T data);
 	
 	/**
 	*	@brief	일부만 채워져있는 data에 알맞은 정보를 저장한다. 대상을 찾을때 Binary Search를 이용한다.
@@ -139,7 +139,9 @@ public:
 	*	@param	data: 일부만 채워져있는 unspecified class.
 	*	@return	찾으면 위치를, 찾지 못하면 -1을 리턴한다.
 	*/
-	int GetBinary(T& data);
+	int GetBinary(T data);
+
+	void Clear();
 
 	/**
 	*	@brief	사용자가 지정한 unspecified class를 배열에서 삭제한다.
@@ -179,13 +181,13 @@ int SortedList<T>::Add(T inData) {
 		}
 	}
 
-	// temp를 확장한 크기의 배열로 생성하고, m_Array의 데이터를 모두 옮겨준다.
+	//// temp를 확장한 크기의 배열로 생성하고, m_Array의 데이터를 모두 옮겨준다.
 	T* temp = new T[m_Length + 1];
 	for (int i = 0; i < m_Length; i++) {
 		temp[i] = m_Array[i];
 	}
 
-	// 기존의 m_Array를 지우고, temp로 설정해준다.
+	//기존의 m_Array를 지우고, temp로 설정해준다.
 	delete[] m_Array;
 	m_Array = temp;
 
@@ -204,11 +206,11 @@ int SortedList<T>::Add(T inData) {
 
 // Print all members if matched data found
 template <class T>
-int SortedList<T>::Get(T& data) {
+int SortedList<T>::Get(T data) {
 	bool found = false;
 
 	for (int i = 0; i < m_Length; i++) {
-		if (m_Array[i].GetName().find(data.GetName()) != string::npos) {
+		if (m_Array[i]->GetName().find(data->GetName()) != string::npos) {
 			cout << m_Array[i] << endl;
 			found = true;
 		}
@@ -223,7 +225,7 @@ int SortedList<T>::Get(T& data) {
 
 // Return position of array if matched data found
 template <class T>
-int SortedList<T>::GetBinary(T& data) {
+int SortedList<T>::GetBinary(T data) {
 	if (m_Length == 0)				// 만약 배열이 비었다면
 		return -1;					// 실패(0)을 리턴한다.
 
@@ -233,11 +235,10 @@ int SortedList<T>::GetBinary(T& data) {
 	while (first <= last) {					// first가 last보다 작거나 같을 때만 실행한다.
 		int mid = (first + last) / 2;
 		
-		if (m_Array[mid] == data) {
-			data = m_Array[mid];			// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
-			return mid;
+		if (*m_Array[mid] == *data) {		
+			return mid;						// data가 m_Array[mid]와 같으면, 위치를 리턴해준다.
 		} else {
-			if (m_Array[mid] > data) {
+			if (*m_Array[mid] > *data) {
 				last = mid - 1;				// data가 m_Array[mid]보다 작으면, 위치를 앞으로 설정해준다.
 			} else {
 				first = mid + 1;			// data가 m_Array[mid]보다 크면, 위치를 뒤로 설정해준다.
@@ -246,6 +247,13 @@ int SortedList<T>::GetBinary(T& data) {
 	}
 
 	return -1;
+}
+
+template <class T>
+void SortedList<T>::Clear() {
+	delete[] m_Array;
+	m_Array = new T[0];
+	m_Length = 0;
 }
 
 // Delete data based on folder name

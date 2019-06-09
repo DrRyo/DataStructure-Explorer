@@ -29,10 +29,12 @@ private:
 	int m_folderNumber;
 	int m_fileNumber;
 	FolderType * m_Parent;
-	SortedList<FolderType> * m_folderList;
-	SortedList<FileType> * m_fileList;
+
 
 public:
+	SortedList<FolderType*> m_folderList;
+	SortedList<FileType*> m_fileList;
+
 	/**
 	*	default constructor.
 	*/
@@ -42,8 +44,6 @@ public:
 		SetCreateDateToNow();
 		SetModifyDateToNow();
 		SetAccessDateToNow();
-		SetSubFolderList(new SortedList<FolderType>);
-		SetFileList(new SortedList<FileType>);
 	}
 
 	/**
@@ -58,8 +58,6 @@ public:
 		SetCreateDateToNow();
 		SetModifyDateToNow();
 		SetAccessDateToNow();
-		SetSubFolderList(new SortedList<FolderType>);
-		SetFileList(new SortedList<FileType>);
 	}
 
 	/**
@@ -67,17 +65,6 @@ public:
 	*/
 	FolderType(const FolderType & folderType) {
 		operator=(folderType);
-	}
-
-	/**
-	*	destructor.
-	*/
-	~FolderType() {
-		if (m_folderNumber)
-			delete m_folderList;
-
-		if (m_fileNumber)
-			delete m_fileList;
 	}
 
 	/**
@@ -208,8 +195,8 @@ public:
 	*	@post	none.
 	*	@return	서브 폴더 리스트를 리턴
 	*/
-	SortedList<FolderType> * GetSubFolderList() const {
-		return m_folderList;
+	SortedList<FolderType*> * GetSubFolderList() {
+		return &m_folderList;
 	}
 
 	/**
@@ -218,8 +205,8 @@ public:
 	*	@post	none.
 	*	@return	파일 리스트를 리턴
 	*/
-	SortedList<FileType> * GetFileList() const {
-		return m_fileList;
+	SortedList<FileType*> * GetFileList() {
+		return &m_fileList;
 	}
 
 	/**
@@ -453,19 +440,19 @@ public:
 		}
 
 		for (int i = 0; i < m_folderNumber; i++) {
-			jsFolder.push(u::JSValue(m_folderList->GetArray()[i].to_jsobject()));
+			jsFolder.push(u::JSValue(m_folderList.GetArray()[i]->to_jsobject()));
 		}
 
 		jsObj["folderList"] = u::JSValue(jsFolder);
 
 		for (auto i = 0; i < m_fileNumber; i++) {
 			u::JSObject obj;
-			obj["name"] = m_fileList->GetArray()[i].GetName().c_str();
-			obj["extension"] = m_fileList->GetArray()[i].GetExtension().c_str();
-			obj["location"] = m_fileList->GetArray()[i].GetLocation().c_str();
-			obj["createDate"] = m_fileList->GetArray()[i].GetCreateDate().c_str();
-			obj["modifyDate"] = m_fileList->GetArray()[i].GetModifyDate().c_str();
-			obj["accessDate"] = m_fileList->GetArray()[i].GetAccessDate().c_str();
+			obj["name"] = m_fileList.GetArray()[i]->GetName().c_str();
+			obj["extension"] = m_fileList.GetArray()[i]->GetExtension().c_str();
+			obj["location"] = m_fileList.GetArray()[i]->GetLocation().c_str();
+			obj["createDate"] = m_fileList.GetArray()[i]->GetCreateDate().c_str();
+			obj["modifyDate"] = m_fileList.GetArray()[i]->GetModifyDate().c_str();
+			obj["accessDate"] = m_fileList.GetArray()[i]->GetAccessDate().c_str();
 
 			jsFile.push(u::JSValue(obj));
 		}

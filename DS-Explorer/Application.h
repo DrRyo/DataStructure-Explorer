@@ -54,16 +54,16 @@ class Application : public LoadListener {
 private:
 	FolderType m_RootFolder;
 	FolderType *m_CurFolder;
-	SortedList<FolderType> *m_CopyFolder = new SortedList<FolderType>();
-	SortedList<FolderType> *m_CutFolder = new SortedList<FolderType>();
-	SortedList<FileType> *m_CopyFile = new SortedList<FileType>();
-	SortedList<FileType> *m_CutFile = new SortedList<FileType>();
-	Queue<FolderType> m_RecentFolder;
-	Queue<FileType> m_RecentFile;
-	Queue<FolderType> m_FavoriteFolder;
-	Queue<FileType> m_FavoriteFile;
-	Frequent<FolderType> m_FrequentFolder;
-	Frequent<FileType> m_FrequentFile;
+	SortedList<FolderType*> m_CopyFolder;
+	SortedList<FolderType*> m_CutFolder;
+	SortedList<FileType*> m_CopyFile;
+	SortedList<FileType*> m_CutFile;
+	Queue<FolderType*> m_RecentFolder;
+	Queue<FileType*> m_RecentFile;
+	Queue<FolderType*> m_FavoriteFolder;
+	Queue<FileType*> m_FavoriteFile;
+	Frequent<FolderType*> m_FrequentFolder;
+	Frequent<FileType*> m_FrequentFile;
 	int m_Command;
 
 protected:
@@ -86,11 +86,9 @@ public:
 		m_RootFolder.SetAccessDateToNow();
 		m_RootFolder.SetFolderNumber(0);
 		m_RootFolder.SetFileNumber(0);
-		m_RootFolder.SetSubFolderList(new SortedList<FolderType>);
-		m_RootFolder.SetFileList(new SortedList<FileType>);
 
 		m_CurFolder = &m_RootFolder;
-		m_RecentFolder.EnQueue(*m_CurFolder);
+		m_RecentFolder.EnQueue(m_CurFolder);
 
 		Windows::CreateDirectoryWithPath(".\\root");
 		
@@ -115,16 +113,6 @@ public:
 		path.append("\\view\\main.html");
 
 		overlay_->view()->LoadURL(path.c_str());
-	}
-
-	/**
-	*	destructor.
-	*/
-	virtual ~Application() {
-		delete m_CopyFolder;
-		delete m_CopyFile;
-		delete m_CutFolder;
-		delete m_CutFile;
 	}
 
 	///

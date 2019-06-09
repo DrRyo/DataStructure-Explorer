@@ -2,24 +2,6 @@
 
 using namespace std;
 
-// Operator = to support deep copy
-FolderType & FolderType::operator=(const FolderType & data) {
-	if (this != &data) {
-		SetName(data.GetName());
-		SetLocation(data.GetLocation());
-		SetCreateDate(data.GetCreateDate());
-		SetModifyDate(data.GetModifyDate());
-		SetAccessDate(data.GetAccessDate());
-		SetFolderNumber(data.GetFolderNumber());
-		SetFileNumber(data.GetFileNumber());
-		SetSubFolderList(data.GetSubFolderList());
-		SetFileList(data.GetFileList());
-		SetParent(data.GetParent());
-	}
-
-	return *this;
-}
-
 // Operator == to support compare two FolderType
 bool FolderType::operator==(const FolderType & data) {
 	if (m_Name == data.GetName() && m_Location == data.GetLocation()) {
@@ -61,19 +43,6 @@ void FolderType::SetFolderNumber(int number) {
 // Set number of file
 void FolderType::SetFileNumber(int number) {
 	m_fileNumber = number;
-}
-
-// Set sub folder list
-void FolderType::SetSubFolderList(SortedList<FolderType> * fType) {
-	m_folderList = NULL;
-	if (fType)
-		m_folderList = new SortedList<FolderType>(*fType);
-}
-
-void FolderType::SetFileList(SortedList<FileType> * fType) {
-	m_fileList = NULL;
-	if (fType)
-		m_fileList = new SortedList<FileType>(*fType);
 }
 
 // Set folder name from keyboard.

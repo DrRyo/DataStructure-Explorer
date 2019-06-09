@@ -119,14 +119,14 @@ namespace Windows {
 
 				FolderType *d = new FolderType(name, location, root);
 
-				if (root->GetSubFolderList()->Add(*d)) {
+				if (root->GetSubFolderList()->Add(d)) {
 					root->SetFolderNumber(root->GetFolderNumber() + 1);
 				}
 
 				int n = root->GetSubFolderList()->GetBinary(*d);
 				if (n == -1) return;
 
-				RecursiveReadStructure(&root->GetSubFolderList()->GetArray()[n], entry.path().u8string() + "\\");
+				RecursiveReadStructure(d, entry.path().u8string() + "\\");
 			} else {
 				size_t l = entry.path().filename().u8string().find_last_of(".");
 				string name = entry.path().filename().u8string().substr(0, l);
@@ -135,11 +135,9 @@ namespace Windows {
 
 				FileType *f = new FileType(name, extension, location, root);
 
-				if (root->GetFileList()->Add(*f)) {
+				if (root->GetFileList()->Add(f)) {
 					root->SetFileNumber(root->GetFileNumber() + 1);
 				}
-
-				delete f;
 			}
 		}
 	}
