@@ -175,7 +175,7 @@ public:
 	*	@param	item:	임의의 클래스 T
 	*	@return	가득 차있으면 false, 추가에 성공하면 true
 	*/
-	bool EnQueue(T item);
+	bool EnQueue(T& item);
 
 	/**
 	*	@brief	Queue에 처음 입력된 값을 지움.
@@ -227,7 +227,7 @@ bool Queue<T>::IsEmpty() {
 
 // Queue에 새로운 데이터를 추가
 template<class T>
-bool Queue<T>::EnQueue(T item) {
+bool Queue<T>::EnQueue(T &item) {
 	if (IsFull()) {
 /*		T* temp = new T[m_Length++];
 		for (int i = 0; i < m_Length; i++) {
