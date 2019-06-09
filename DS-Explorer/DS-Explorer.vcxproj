@@ -29,7 +29,6 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="FileType.h" />
     <ClInclude Include="FolderType.h" />
-    <ClInclude Include="Frequent.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="SortedList.h" />
     <ClInclude Include="ViewListener.h" />

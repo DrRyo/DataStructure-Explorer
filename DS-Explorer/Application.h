@@ -18,7 +18,6 @@
 #include "Queue.h"
 
 #include "FolderType.h"
-#include "Frequent.h"
 
 #include "Windows.h"
 
@@ -62,8 +61,6 @@ private:
 	Queue<FileType> m_RecentFile;
 	Queue<FolderType> m_FavoriteFolder;
 	Queue<FileType> m_FavoriteFile;
-	Frequent<FolderType> m_FrequentFolder;
-	Frequent<FileType> m_FrequentFile;
 	int m_Command;
 
 protected:
@@ -163,6 +160,8 @@ public:
 		global["DeleteFileA"] = BindJSCallback(&Application::DeleteFileA);
 		global["RenameFile"] = BindJSCallback(&Application::RenameFile);
 		global["OpenFile"] = BindJSCallback(&Application::OpenFile);
+
+		global["GetFolderObject"] = BindJSCallback(&Application::GetFolderObject);
 
 		ReadDataFromSystem();
 	}
@@ -343,5 +342,12 @@ public:
 	*	@post	파일 시스템 구조가 정상적으로 읽어짐.
 	*/
 	void ReadDataFromSystem();
+
+	/**
+	*	@brief	현재 폴더 정보를 UI에 넘겨준다.
+	*	@pre	none.
+	*	@post	BindJSCallback으로 bind 됨.
+	*/
+	void GetFolderObject(const JSObject& thisObject, const JSArgs& args);
 };
 #endif //_APPLICATION_H

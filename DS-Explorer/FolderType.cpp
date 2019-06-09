@@ -93,41 +93,6 @@ void FolderType::SetFileList(SortedList<FileType> * fType) {
 		m_fileList = new SortedList<FileType>(*fType);
 }
 
-// Set folder name from keyboard.
-void FolderType::SetNameFromKB() {
-	string temp;
-
-	while (true) {
-		cout << "\tFolder Name: ";
-		cin >> temp;
-
-		if (Windows::IsValidName(temp)) {
-			m_Name = temp;
-			break;
-		} else {
-			cout << endl << "\tNot allowed character included." << endl;
-		}
-	}
-}
-
-// Set folder location from keyboard.
-void FolderType::SetLocationFromKB() {
-	cout << "\tFolder Location: ";
-	cin >> m_Location;
-}
-
-// Set folder property from keyboard.
-void FolderType::SetPropertyFromKB(string location) {
-	SetNameFromKB();
-	SetLocation(location);
-}
-
-// Set folder property from keyboard.
-void FolderType::SetPropertyFromKB() {
-	SetNameFromKB();
-	SetLocationFromKB();
-}
-
 // Convert time_t to string format.
 string FolderType::FormatTimeToString(time_t date) {
 	struct tm ti;

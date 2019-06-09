@@ -409,40 +409,7 @@ public:
 	*	@return	none.
 	*/
 	void SetFileList(SortedList<FileType> * fType);
-
-	/**
-	*	@brief	키보드에서 폴더명을 입력받아 설정하는 함수
-	*	@pre	폴더명을 입력받음.
-	*	@post	폴더명이 설정됨.
-	*	@return	none.
-	*/
-	void SetNameFromKB();
-
-	/**
-	*	@brief	키보드에서 폴더 위치를 입력받아 설정하는 함수
-	*	@pre	폴더 위치를 입력받음.
-	*	@post	폴더 위치가 설정됨.
-	*	@return	none.
-	*/
-	void SetLocationFromKB();
-
-	/**
-	*	@brief	키보드에서 폴더 속성을 입력받아 설정하는 함수
-	*	@pre	폴더 속성을 입력받음.
-	*	@post	폴더 속성이 설정됨.
-	*	@param	location:	폴더 위치를 받아옴.
-	*	@return	none.
-	*/
-	void SetPropertyFromKB(string location);
-
-	/**
-	*	@brief	키보드에서 폴더 속성을 입력받아 설정하는 함수
-	*	@pre	폴더 속성을 입력받음.
-	*	@post	폴더 속성이 설정됨.
-	*	@return	none.
-	*/
-	void SetPropertyFromKB();
-
+	
 	/**
 	*	@brief	FolderType을 JSObject로 변환한다.
 	*	@return	JSObject가 리턴됨. 실패할 경우 NULL 반환.
@@ -452,6 +419,7 @@ public:
 		u::JSArray jsFolder;
 		u::JSArray jsFile;
 
+		jsObj["type"] = std::string("folder").c_str();
 		jsObj["name"] = m_Name.c_str();
 		jsObj["location"] = m_Location.c_str();
 		jsObj["createDate"] = m_CreateDate.c_str();
@@ -473,6 +441,7 @@ public:
 
 		for (auto i = 0; i < m_fileNumber; i++) {
 			u::JSObject obj;
+			obj["type"] = std::string("file").c_str();
 			obj["name"] = m_fileList->GetRef(i)->GetName().c_str();
 			obj["extension"] = m_fileList->GetRef(i)->GetExtension().c_str();
 			obj["location"] = m_fileList->GetRef(i)->GetLocation().c_str();

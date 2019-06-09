@@ -7,16 +7,21 @@
   <link rel="stylesheet" href="css/bootstrap-4.3.1.min.css">
   <link rel="stylesheet" href="css/line-awesome-font-awesome-1.1.0.min.css">
   <link rel="stylesheet" href="css/jquery.contextMenu-2.8.0.min.css">
+  <link rel="stylesheet" href="css/jquery.dataTables.min.css">
   <title>Media Explorer</title>
 </head>
 <style>
-  th > .la { font-size: 1.5rem; }
+  th>.la {
+    font-size: 1.5rem;
+  }
+
   td.button-td {
     padding: 0;
     text-align: center;
     vertical-align: middle;
   }
 </style>
+
 <body>
   <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand mb-0 h1" href="javascript:location.reload();">Media Explorer</a>
@@ -30,41 +35,33 @@
     </ol>
     <div class="row">
       <div class="col-sm-8">
-        <table class="table table-hover">
+        <table class="table table-hover" id="table-explorer">
           <thead>
             <tr>
-              <th scope="col"></th>
+              <th class="sorting_disabled" scope="col"></th>
               <th scope="col" width="30%">Name</th>
               <th scope="col">Access Date</th>
               <th scope="col">Modify Date</th>
               <th scope="col">Create Date</th>
-              <th scope="col" width="5%">Edit</th>
-              <th scope="col" width="5%">Delete</th>
+              <th scope="col" width="5%">Menu</th>
             </tr>
           </thead>
           <tbody>
-            <tr data-type="parent">
-              <th scope="row"></th>
-              <td>..</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
           </tbody>
         </table>
       </div>
       <div class="col-sm-4">
-          <form>
-            <div class="form-group">
-              <textarea class="form-control" id="debug" rows="30"></textarea>
-            </div>
-          </form>
+      </div>
+    </div>
+    <div style="position: absolute; bottom: 10px;right: 10px;">
+      <div class="btn btn-secondary btn-debug">
+        <i class="fa fa-terminal" style="font-size:1.5rem;"></i>
       </div>
     </div>
   </div>
   <!-- Input Modal -->
-  <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel" aria-hidden="true">
+  <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -82,6 +79,26 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Debug Modal -->
+  <div class="modal fade" id="debugModal" tabindex="-1" role="dialog" aria-labelledby="debugModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="debugModalTitle">DEBUG</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="debug"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -111,5 +128,6 @@
 <script src="js/bootstrap-4.3.1.min.js"></script>
 <script src="js/jquery.contextMenu-2.8.0.min.js"></script>
 <script src="js/jquery.ui.position-2.8.0.min.js"></script>
+<script src="js/jquery.dataTables.min.js"></script>
 <script src="js/index.js"></script>
 </html>

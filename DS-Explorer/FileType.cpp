@@ -67,60 +67,6 @@ void FileType::SetAccessDateToNow() {
 	m_AccessDate = FormatTimeToString(date);
 }
 
-// Set file name from keyboard.
-void FileType::SetNameFromKB() {
-	string temp;
-
-	while (true) {
-		cout << "\tFile Name: ";
-		cin >> temp;
-
-		if (Windows::IsValidName(temp)) {
-			m_Name = temp;
-			break;
-		} else {
-			cout << endl << "\tNot allowed character included." << endl;
-		}
-	}
-}
-
-// Set file extension from keyboard.
-void FileType::SetExtensionFromKB() {
-	string temp;
-
-	while (true) {
-		cout << "\tFile Extension: ";
-		cin >> temp;
-
-		if (Windows::IsValidName(temp)) {
-			m_Extension = temp;
-			break;
-		} else {
-			cout << endl << "\tNot allowed character included." << endl;
-		}
-	}
-}
-
-// Set file location from keyboard.
-void FileType::SetLocationFromKB() {
-	cout << "\tFile Location: ";
-	cin >> m_Location;
-}
-
-// Set File property from keyboard.
-void FileType::SetPropertyFromKB(string location) {
-	SetNameFromKB();
-	SetExtensionFromKB();
-	SetLocation(location);
-}
-
-// Set File property from keyboard.
-void FileType::SetPropertyFromKB() {
-	SetNameFromKB();
-	SetExtensionFromKB();
-	SetLocationFromKB();
-}
-
 // Convert time_t to string format.
 string FileType::FormatTimeToString(time_t date) {
 	struct tm ti;

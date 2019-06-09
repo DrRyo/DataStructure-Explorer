@@ -335,47 +335,6 @@ public:
 	*	@return	none.
 	*/
 	void SetAccessDateToNow();
-
-	/**
-	*	@brief	키보드에서 파일명을 입력받아 설정하는 함수
-	*	@pre	파일명을 입력받음.
-	*	@post	파일명이 설정됨.
-	*	@return	none.
-	*/
-	void SetNameFromKB();
-
-	/**
-	*	@brief	키보드에서 파일 확장자를 입력받아 설정하는 함수
-	*	@pre	파일 확장자를 입력받음.
-	*	@post	파일 확장자가 설정됨.
-	*	@return	none.
-	*/
-	void SetExtensionFromKB();
-
-	/**
-	*	@brief	키보드에서 파일 위치를 입력받아 설정하는 함수
-	*	@pre	파일 위치를 입력받음.
-	*	@post	파일 위치가 설정됨.
-	*	@return	none.
-	*/
-	void SetLocationFromKB();
-
-	/**
-	*	@brief	키보드에서 파일 속성을 입력받아 설정하는 함수
-	*	@pre	파일 속성을 입력받음.
-	*	@post	파일 속성이 설정됨.
-	*	@param	location:	파일 위치를 받아옴.
-	*	@return	none.
-	*/
-	void SetPropertyFromKB(string location);
-
-	/**
-	*	@brief	키보드에서 파일 속성을 입력받아 설정하는 함수
-	*	@pre	파일 속성을 입력받음.
-	*	@post	파일 속성이 설정됨.
-	*	@return	none.
-	*/
-	void SetPropertyFromKB();
 };
 
 #endif //_FILETYPE_H

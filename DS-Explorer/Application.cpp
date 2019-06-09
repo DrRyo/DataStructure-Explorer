@@ -46,46 +46,31 @@ void Application::DeleteFolder(const JSObject& thisObject, const JSArgs& args) {
 // Rename folder
 void Application::RenameFolder(const JSObject& thisObject, const JSArgs& args) {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
-	cout << "\t바꾸고 싶은 폴더 이름을 입력해주세요." << endl;
 	FolderType* temp = new FolderType();
 	temp->SetLocation(location);
 	temp->SetName(std::string(((String)args[0]).utf8().data()));
 
-	if (m_CurFolder->GetSubFolderList()->GetBinary(*temp) != -1) {
-		cout << endl << "\t무엇으로 바꾸시겠습니까?" << endl;
+	int n = m_CurFolder->GetSubFolderList()->GetBinary(*temp);
+
+	if (n != -1) {
 		FolderType *renew = new FolderType();
 		renew->SetLocation(location);
 		renew->SetName(std::string(((String)args[1]).utf8().data()));
 
 		if (m_CurFolder->GetSubFolderList()->GetBinary(*renew) == -1) {
-			if (m_CurFolder->GetSubFolderList()->Delete(*temp)) {
-				m_CurFolder->SetModifyDateToNow();
-				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() - 1);
-			} else {
-				return;
-			}
-
 			// Rename folder in Windows
 			Windows::RenameDirectoryWithPath(location, temp->GetName(), renew->GetName());
 			
-			temp->SetAccessDateToNow();
-			temp->SetName(renew->GetName());
-			
-			if (m_CurFolder->GetSubFolderList()->Add(*temp)) {
-				m_CurFolder->SetModifyDateToNow();
-				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
-				RecursiveUpdateLocation(m_CurFolder, location);
+			m_CurFolder->GetSubFolderList()->GetRef(n)->SetAccessDateToNow();
+			m_CurFolder->GetSubFolderList()->GetRef(n)->SetName(renew->GetName());
 
-				if (UpdateCurrentFolderObject.IsValid()) {
-					JSObject jso = m_CurFolder->to_jsobject();
-					UpdateCurrentFolderObject(jso, { 0 });
-				}
-			} else {
-				return;
-			}
-		} else {
-			return;
+			RecursiveUpdateLocation(m_CurFolder, location);
 		}
+	}
+
+	if (UpdateCurrentFolderObject.IsValid()) {
+		JSObject jso = m_CurFolder->to_jsobject();
+		UpdateCurrentFolderObject(jso, { 0 });
 	}
 }
 
@@ -98,20 +83,12 @@ void Application::OpenFolder(const JSObject& thisObject, const JSArgs& args) {
 
 	int n = m_CurFolder->GetSubFolderList()->GetBinary(temp);
 
-	if (n == -1) {
-		cout << "해당 폴더가 존재하지 않습니다!" << endl;
-		system("pause");
-		return;
-	}
+	if (n == -1) return;
 
 	FolderType& result = *m_CurFolder->GetSubFolderList()->GetRef(n);
 	result.SetParent(m_CurFolder);
 
 	m_RecentFolder.EnQueue(result);
-	/*
-	m_FrequentFolder.AddKey(result);
-	m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(result)]++;
-	*/
 	m_CurFolder = &result;
 	m_CurFolder->SetAccessDateToNow();
 
@@ -132,14 +109,10 @@ void Application::MoveToParentFolder(const JSObject& thisObject, const JSArgs& a
 	if (m_CurFolder->GetParent() == nullptr) {
 		m_RecentFolder.EnQueue(m_RootFolder);
 		m_RootFolder.SetAccessDateToNow();
-		m_FrequentFolder.AddKey(m_RootFolder);
-		m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(m_RootFolder)]++;
 		m_CurFolder = &m_RootFolder;
 	} else {
 		m_RecentFolder.EnQueue(*(m_CurFolder->GetParent()));
 		m_CurFolder->GetParent()->SetAccessDateToNow();
-		m_FrequentFolder.AddKey(*m_CurFolder->GetParent());
-		m_FrequentFolder.count[m_FrequentFolder.GetIndexOfKey(*m_CurFolder->GetParent())]++;
 		m_CurFolder = m_CurFolder->GetParent();
 	}
 
@@ -212,11 +185,6 @@ void Application::PasteCopyFolder() {
 				m_CurFolder->SetFolderNumber(m_CurFolder->GetFolderNumber() + 1);
 				RecursiveUpdateLocation(m_CurFolder, location);
 			}
-
-			cout << "\tFolder " << temp->GetName() << " is successfully copied and pasted!" << endl;
-		} else {
-			// 중복되는 이름을 가진 폴더가 있다면, 에러를 띄우고 스킵한다.
-			cout << "\tFolder " << temp->GetName() << " is duplicated, program will skip this folder!" << endl;
 		}
 	}
 
@@ -269,11 +237,6 @@ void Application::PasteCutFolder() {
 					parent.SetFolderNumber(parent.GetFolderNumber() - 1);
 				}
 			}
-
-			cout << "\tFolder " << temp->GetName() << " is successfully cutted and pasted!" << endl;
-		} else {
-			// 중복되는 이름을 가진 폴더가 있다면, 에러를 띄우고 스킵한다.
-			cout << "\tFolder " << temp->GetName() << " is duplicated, program will skip this folder!" << endl;
 		}
 	}
 
@@ -308,7 +271,7 @@ void Application::RecursiveUpdateLocation(FolderType *list, string location) {
 void Application::PasteFolder() {
 	PasteCopyFolder();
 	PasteCutFolder();
-	system("pause");
+	GetFolderObject(NULL, JSArgs());
 }
 
 // Add new file
@@ -325,13 +288,10 @@ void Application::NewFile(const JSObject& thisObject, const JSArgs& args) {
 		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
 		
 		// Create new file in Windows
-		if (Windows::CreateFileWithPath(location, temp.GetName(), temp.GetExtension())) {
-			if (UpdateCurrentFolderObject.IsValid()) {
-				JSObject jso = m_CurFolder->to_jsobject();
-				UpdateCurrentFolderObject(jso, { 0 });
-			}
-		}
+		Windows::CreateFileWithPath(location, temp.GetName(), temp.GetExtension());
 	}
+
+	GetFolderObject(NULL, JSArgs());
 }
 
 // Delete file
@@ -347,13 +307,10 @@ void Application::DeleteFileA(const JSObject& thisObject, const JSArgs& args) {
 		m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() - 1);
 
 		// Delete file in Windows
-		if (Windows::DeleteFileWithPath(location, temp.GetName(), temp.GetExtension())) {
-			if (UpdateCurrentFolderObject.IsValid()) {
-				JSObject jso = m_CurFolder->to_jsobject();
-				UpdateCurrentFolderObject(jso, { 0 });
-			}
-		}
+		Windows::DeleteFileWithPath(location, temp.GetName(), temp.GetExtension());
 	}
+
+	GetFolderObject(NULL, JSArgs());
 }
 
 // Rename file
@@ -371,22 +328,16 @@ void Application::RenameFile(const JSObject& thisObject, const JSArgs& args) {
 		renew->SetExtension(std::string(((String)args[3]).utf8().data()));
 
 		if (m_CurFolder->GetFileList()->GetBinary(*renew) == -1) {
-			m_CurFolder->GetFileList()->Delete(*temp);
-
 			// Rename file in Windows
 			Windows::RenameFileWithPath(location, temp->GetName(), temp->GetExtension(),
 												renew->GetName(), renew->GetExtension());
 
 			temp->SetAccessDateToNow();
 			temp->SetName(renew->GetName());
-			temp->SetExtension(renew->GetExtension());
-
-			m_CurFolder->GetFileList()->Add(*temp);
-		}
-		else {
-			cout << "\t파일명 중복입니다." << endl;
 		}
 	}
+
+	GetFolderObject(NULL, JSArgs());
 }
 
 // Open file if exists in folder
@@ -401,8 +352,6 @@ void Application::OpenFile(const JSObject& thisObject, const JSArgs& args) {
 		return;
 
 	m_RecentFile.EnQueue(*temp);
-	m_FrequentFile.AddKey(*temp);
-	m_FrequentFile.count[m_FrequentFile.GetIndexOfKey(*temp)]++;
 
 	Windows::ExecuteFile(location, temp->GetName(), temp->GetExtension());
 }
@@ -411,20 +360,19 @@ void Application::OpenFile(const JSObject& thisObject, const JSArgs& args) {
 void Application::SetAsFavoriteFile() {
 	string location = m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\";
 	FileType* temp = new FileType();
-	temp->SetPropertyFromKB(location);
+	//temp->SetPropertyFromKB(location);
 
 	if (m_CurFolder->GetFileList()->GetBinary(*temp) != -1) {
 		m_FavoriteFile.EnQueue(*temp);
-	} else {
-		cout << "\tThere is no such file." << endl;
-		system("pause");
 	}
+
+	GetFolderObject(NULL, JSArgs());
 }
 
 // Copy file
 void Application::CopyFileA() {
 	FileType *temp = new FileType();
-	temp->SetPropertyFromKB(m_CurFolder->GetLocation () + m_CurFolder->GetName () + "\\");
+	//temp->SetPropertyFromKB(m_CurFolder->GetLocation () + m_CurFolder->GetName () + "\\");
 
 	// 복사하고자 하는 파일이 현재 폴더에 존재하지 않으면 실행을 종료
 	if (m_CurFolder->GetFileList()->GetBinary(*temp) == -1) return;
@@ -444,7 +392,7 @@ void Application::CopyFileA() {
 // Cut file
 void Application::CutFile() {
 	FileType *temp = new FileType();
-	temp->SetPropertyFromKB(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
+	//temp->SetPropertyFromKB(m_CurFolder->GetLocation() + m_CurFolder->GetName() + "\\");
 
 	// 복사하고자 하는 파일이 현재 폴더에 존재하지 않으면 실행을 종료
 	if (m_CurFolder->GetFileList()->GetBinary(*temp) == -1) return;
@@ -489,15 +437,13 @@ void Application::PasteCopyFile() {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
 			}
-
-			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
-				<< " is successfully copied and pasted!" << endl;
 		} else {
-			// 중복되는 이름을 가진 파일이 있다면, 에러를 띄우고 스킵한다.
-			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
-				<< " is duplicated, program will skip this file!" << endl;
+			return;
 		}
 	}
+
+	GetFolderObject(NULL, JSArgs());
+
 	delete m_CopyFile;
 	m_CopyFile = new SortedList<FileType>();
 }
@@ -538,15 +484,13 @@ void Application::PasteCutFile() {
 				m_CurFolder->SetModifyDateToNow();
 				m_CurFolder->SetFileNumber(m_CurFolder->GetFileNumber() + 1);
 			}
-
-			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
-				<< " is successfully cutted and pasted!" << endl;
 		} else {
-			// 중복되는 이름을 가진 파일이 있다면, 에러를 띄우고 스킵한다.
-			cout << "\tFile " << temp->GetName() << "." << temp->GetExtension()
-				<< " is duplicated, program will skip this file!" << endl;
+			return;
 		}
 	}
+
+	GetFolderObject(NULL, JSArgs());
+
 	delete m_CutFile;
 	m_CutFile = new SortedList<FileType>();
 }
@@ -555,7 +499,6 @@ void Application::PasteCutFile() {
 void Application::PasteFile() {
 	PasteCopyFile();
 	PasteCutFile();
-	system("pause");
 }
 
 // Search folder or file in whole system
@@ -565,7 +508,6 @@ void Application::Search() {
 	cin >> word;
 
 	RecursiveSearch(&m_RootFolder, word);
-	system("pause");
 }
 
 // Temporary function to search recursively
@@ -592,5 +534,13 @@ void Application::RecursiveSearch(FolderType* f, string w) {
 void Application::ReadDataFromSystem() {
 	if (Windows::ReadStructureFromSystem(&m_RootFolder)) {
 		UpdateCurrentFolderObject(m_RootFolder.to_jsobject(), { 0 });
+	}
+}
+
+// UI에 현재 폴더 정보를 업데이트
+void Application::GetFolderObject(const JSObject& thisObject, const JSArgs& args) {
+	if (UpdateCurrentFolderObject.IsValid()) {
+		JSObject jso = m_CurFolder->to_jsobject();
+		UpdateCurrentFolderObject(jso, { 0 });
 	}
 }
